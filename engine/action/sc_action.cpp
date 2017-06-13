@@ -3234,7 +3234,7 @@ void action_t::snapshot_internal( action_state_t* state, unsigned flags, dmg_e r
     state -> persistent_multiplier = composite_persistent_multiplier( state );
 
   if ( flags & STATE_MUL_PET )
-    state -> pet_multiplier = player -> cast_pet() -> owner -> composite_player_pet_damage_multiplier( state );
+    state -> pet_multiplier = player -> cast_pet() -> owner -> cache.player_pet_damage_multiplier( state );
 
   if ( flags & STATE_TGT_MUL_DA )
     state -> target_da_multiplier = composite_target_da_multiplier( state -> target );

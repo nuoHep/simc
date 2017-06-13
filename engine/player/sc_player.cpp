@@ -10647,6 +10647,7 @@ void player_stat_cache_t::invalidate_all()
   range::fill( spell_power_valid, false );
   range::fill( player_mult_valid, false );
   range::fill( player_heal_mult_valid, false );
+  range::fill( player_pet_mult_valid, false );
 }
 
 /* Invalidate ALL stats
@@ -10663,6 +10664,9 @@ void player_stat_cache_t::invalidate( cache_e c )
       break;
     case CACHE_PLAYER_HEAL_MULTIPLIER:
       range::fill( player_heal_mult_valid, false );
+      break;
+    case CACHE_PLAYER_PET_DAMAGE_MULTIPLIER:
+      range::fill( player_pet_mult_valid, false );
       break;
     default:
       valid[ c ] = false;
@@ -11110,6 +11114,21 @@ double player_stat_cache_t::player_heal_multiplier( const action_state_t* s ) co
   }
   else assert( _player_heal_mult[ sch ] == player -> composite_player_heal_multiplier( s ) );
   return _player_heal_mult[ sch ];
+}
+
+// player_stat_cache_t::player_pet_damage_multiplier =======================================
+
+double player_stat_cache_t::player_pet_damage_multiplier( const action_state_t* s ) const
+{
+  school_e sch = s -> action -> get_school();
+
+  if ( ! active || ! player_pet_mult_valid[ sch ] )
+  {
+    player_pet_mult_valid[ sch ] = true;
+    _player_pet_mult[ sch ] = player -> composite_player_pet_damage_multiplier( s );
+  }
+  else assert( _player_pet_mult[ sch ] == player -> composite_player_pet_damage_multiplier( s ) );
+  return _player_pet_mult[ sch ];
 }
 
 #endif

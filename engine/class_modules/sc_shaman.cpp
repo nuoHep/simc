@@ -8046,6 +8046,7 @@ void shaman_t::invalidate_cache( cache_e c )
       if ( mastery.enhanced_elements -> ok() )
       {
         player_t::invalidate_cache( CACHE_PLAYER_DAMAGE_MULTIPLIER );
+        player_t::invalidate_cache( CACHE_PLAYER_PET_DAMAGE_MULTIPLIER );
       }
       break;
     default: break;

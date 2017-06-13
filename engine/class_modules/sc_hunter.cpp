@@ -5964,7 +5964,8 @@ void hunter_t::create_buffs()
 
   buffs.the_mantle_of_command =
     buff_creator_t( this, "the_mantle_of_command", find_spell( 247993 ) )
-      .default_value( find_spell( 247993 ) -> effectN( 1 ).percent() );
+      .default_value( find_spell( 247993 ) -> effectN( 1 ).percent() )
+      .add_invalidate( CACHE_PLAYER_PET_DAMAGE_MULTIPLIER );
 
   buffs.celerity_of_the_windrunners =
     haste_buff_creator_t( this, "celerity_of_the_windrunners", find_spell( 248088 ) )
@@ -5974,7 +5975,8 @@ void hunter_t::create_buffs()
     buff_creator_t( this, "parsels_tongue", find_spell( 248085 ) )
       .default_value( find_spell( 248085 ) -> effectN( 1 ).percent() )
       .max_stack( find_spell( 248085 ) -> max_stacks() )
-      .add_invalidate( CACHE_PLAYER_DAMAGE_MULTIPLIER );
+      .add_invalidate( CACHE_PLAYER_DAMAGE_MULTIPLIER )
+      .add_invalidate( CACHE_PLAYER_PET_DAMAGE_MULTIPLIER );
 
   buffs.t20_4p_precision =
     buff_creator_t( this, "t20_4p_precision", find_spell( 246153 ) )
@@ -6724,6 +6726,10 @@ void hunter_t::invalidate_cache( cache_e c )
           action_list[i] -> target_cache.is_valid = false;
         }
       }
+    }
+    else if ( mastery.master_of_beasts -> ok() )
+    {
+      player_t::invalidate_cache( CACHE_PLAYER_PET_DAMAGE_MULTIPLIER );
     }
     break;
   default: break;

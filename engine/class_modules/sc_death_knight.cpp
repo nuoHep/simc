@@ -8688,6 +8688,8 @@ void death_knight_t::invalidate_cache( cache_e c )
       player_t::invalidate_cache( CACHE_PLAYER_DAMAGE_MULTIPLIER );
       if ( specialization() == DEATH_KNIGHT_BLOOD )
         player_t::invalidate_cache( CACHE_ATTACK_POWER );
+      if ( mastery.dreadblade -> ok() )
+        player_t::invalidate_cache( CACHE_PLAYER_PET_DAMAGE_MULTIPLIER );
       break;
     default: break;
   }

@@ -3138,7 +3138,7 @@ struct player_stat_cache_t
 {
   const player_t* player;
   mutable std::array<bool, CACHE_MAX> valid;
-  mutable std::array < bool, SCHOOL_MAX + 1 > spell_power_valid, player_mult_valid, player_heal_mult_valid;
+  mutable std::array < bool, SCHOOL_MAX + 1 > spell_power_valid, player_mult_valid, player_heal_mult_valid, player_pet_mult_valid;
   // 'valid'-states
 private:
   // cached values
@@ -3152,6 +3152,7 @@ private:
   mutable double _dodge, _parry, _block, _crit_block, _armor, _bonus_armor;
   mutable double _mastery, _mastery_value, _crit_avoidance, _miss;
   mutable double _player_mult[SCHOOL_MAX + 1], _player_heal_mult[SCHOOL_MAX + 1];
+  mutable double _player_pet_mult[SCHOOL_MAX + 1];
   mutable double _damage_versatility, _heal_versatility, _mitigation_versatility;
   mutable double _leech, _run_speed, _avoidance;
 public:
@@ -3190,6 +3191,7 @@ public:
   double bonus_armor() const;
   double player_multiplier( school_e ) const;
   double player_heal_multiplier( const action_state_t* ) const;
+  double player_pet_damage_multiplier( const action_state_t* ) const;
   double damage_versatility() const;
   double heal_versatility() const;
   double mitigation_versatility() const;

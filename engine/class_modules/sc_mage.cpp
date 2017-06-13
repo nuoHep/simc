@@ -7065,7 +7065,8 @@ void mage_t::create_buffs()
   buffs.rune_of_power          = buff_creator_t( this, "rune_of_power", find_spell( 116014 ) )
                                    .duration( find_spell( 116011 ) -> duration() )
                                    .default_value( find_spell( 116014 ) -> effectN( 1 ).percent() )
-                                   .add_invalidate( CACHE_PLAYER_DAMAGE_MULTIPLIER );
+                                   .add_invalidate( CACHE_PLAYER_DAMAGE_MULTIPLIER )
+                                   .add_invalidate( CACHE_PLAYER_PET_DAMAGE_MULTIPLIER );
 
   // Artifact
   buffs.chain_reaction        = buff_creator_t( this, "chain_reaction", find_spell( 195418 ) )

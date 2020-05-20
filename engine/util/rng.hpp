@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <memory>
 
 #include "sc_timespan.hpp"
 
@@ -34,6 +35,8 @@ public:
 
   basic_rng_t(const basic_rng_t&) = delete;
   basic_rng_t& operator=(const basic_rng_t&) = delete;
+
+  explicit basic_rng_t( Engine engine ) : engine( std::move( engine ) ) {}
 
   /// Return engine name
   const char* name() const {
@@ -303,5 +306,37 @@ struct rng_t : public basic_rng_t<xoshiro256plus_t> {};
 
 double stdnormal_cdf( double );
 double stdnormal_inv( double );
+
+struct runtime_engine_t
+{
+  struct base_t {
+    virtual ~base_t() = default;
+    virtual uint64_t next() noexcept = 0;
+    virtual void seed( uint64_t start ) noexcept = 0;
+    virtual const char* name() const noexcept = 0;
+  };
+
+  template <typename Engine>
+  struct impl_t : public base_t
+  {
+    uint64_t next() noexcept override { return engine.next(); }
+    void seed( uint64_t start ) noexcept override { return engine.seed( start ); }
+    const char* name() const noexcept override { return engine.name(); }
+    Engine engine;
+  };
+
+public:
+  uint64_t next() noexcept { return impl->next(); }
+  void seed( uint64_t start ) noexcept { return impl->seed( start ); }
+  const char* name() const noexcept { return impl->name(); }
+
+  template <typename Engine>
+  static runtime_engine_t create() { return { std::make_unique<impl_t<Engine>>() }; }
+
+private:
+  runtime_engine_t(std::unique_ptr<base_t> impl) : impl( std::move( impl ) ) {}
+
+  std::unique_ptr<base_t> impl;
+};
 
 } // rng

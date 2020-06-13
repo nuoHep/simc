@@ -75,6 +75,9 @@ void parse_affecting_aura( action_t *const action, const spell_data_t *const spe
           action -> base_dd_multiplier *= 1 + effect.percent();
           break;
 
+        case P_COOLDOWN:
+          action -> cooldown -> duration *= 1 + effect.percent();
+
         case P_TICK_DAMAGE:
           action -> base_td_multiplier *= 1 + effect.percent();
           break;
@@ -86,13 +89,20 @@ void parse_affecting_aura( action_t *const action, const spell_data_t *const spe
       default: break;
       }
     }
-    else if ( action -> data().category() == as<unsigned>(effect.misc_value1()) )
+    else if ( action -> data().category() == as<unsigned>( effect.misc_value1() ) )
     {
       switch ( effect.subtype() )
       {
+      case A_411: // Modify Cooldown Charges
+        action -> cooldown -> charges += as<int>( effect.base_value() );
+        break;
+
       case A_HASTED_CATEGORY:
         action -> cooldown -> hasted = true;
         break;
+
+      case A_453:
+        action -> cooldown -> duration += effect.time_value();
 
       default: break;
       }
@@ -706,6 +716,14 @@ public:
 
     affected_by.spirit_bond = ab::data().affected_by( p -> mastery.spirit_bond -> effectN( 1 ) );
     affected_by.coordinated_assault = ab::data().affected_by( p -> specs.coordinated_assault -> effectN( 1 ) );
+
+    // passive talents
+    parse_affecting_aura( this, p -> talents.born_to_be_wild );
+    parse_affecting_aura( this, p -> talents.master_marksman );
+    parse_affecting_aura( this, p -> talents.dead_eye_ );
+    parse_affecting_aura( this, p -> talents.alpha_predator );
+    parse_affecting_aura( this, p -> talents.hydras_bite );
+    parse_affecting_aura( this, p -> talents.guerrilla_tactics );
 
     // "ranks"
     parse_affecting_aura( this, p -> find_specialization_spell( 262838 ) ); // Cobra Shot (Rank 2)
@@ -2431,8 +2449,6 @@ struct aimed_shot_base_t: public hunter_ranged_attack_t
     radius = 8;
     base_aoe_multiplier = p -> specs.trick_shots -> effectN( 4 ).percent();
 
-    parse_affecting_aura( p -> talents.master_marksman );
-
     if ( p -> talents.careful_aim -> ok() )
     {
       careful_aim.benefit = p -> get_benefit( "careful_aim" );
@@ -3352,7 +3368,7 @@ struct harpoon_t: public hunter_melee_attack_t
     movement_directionality = movement_direction_type::OMNI;
     may_parry = may_dodge = may_block = false;
 
-    cooldown -> duration += p -> find_spell( 231550 ) -> effectN( 1 ).time_value(); // Harpoon (Rank 2)
+    parse_affecting_aura( this, p -> find_spell( 231550 ) ); // Harpoon (Rank 2)
 
     if ( p -> talents.terms_of_engagement -> ok() )
     {
@@ -3399,8 +3415,6 @@ struct serpent_sting_sv_t: public hunter_ranged_attack_t
 
     if ( p -> talents.hydras_bite -> ok() )
       aoe = 1 + static_cast<int>( p -> talents.hydras_bite -> effectN( 1 ).base_value() );
-
-    base_td_multiplier *= 1 + p -> talents.hydras_bite -> effectN( 2 ).percent();
   }
 
   void init() override
@@ -3698,8 +3712,6 @@ struct kill_command_t: public hunter_spell_t
     flankers_advantage( p -> get_proc( "flankers_advantage" ) )
   {
     parse_options( options_str );
-
-    cooldown -> charges += static_cast<int>( p -> talents.alpha_predator -> effectN( 1 ).base_value() );
 
     if ( p -> azerite.dire_consequences.ok() )
     {
@@ -4127,8 +4139,6 @@ struct wildfire_bomb_t: public hunter_spell_t
       // XXX: It's actually a circle + cone, but we sadly can't really model that
       radius = 5;
 
-      base_dd_multiplier *= 1 + p() -> talents.guerrilla_tactics -> effectN( 2 ).percent();
-
       a -> add_child( this );
       a -> add_child( dot_action );
     }
@@ -4216,8 +4226,6 @@ struct wildfire_bomb_t: public hunter_spell_t
     may_miss = false;
     school = SCHOOL_FIRE; // for report coloring
 
-    cooldown -> charges += static_cast<int>( p -> talents.guerrilla_tactics -> effectN( 1 ).base_value() );
-
     if ( p -> talents.wildfire_infusion -> ok() )
     {
       bombs[ WILDFIRE_INFUSION_SHRAPNEL ] =  p -> get_background_action<shrapnel_bomb_t>( "shrapnel_bomb_impact", this );
@@ -4279,8 +4287,6 @@ struct aspect_of_the_eagle_t: public hunter_spell_t
     parse_options( options_str );
 
     harmful = may_hit = false;
-
-    cooldown -> duration *= 1 + p -> talents.born_to_be_wild -> effectN( 1 ).percent();
   }
 
   void execute() override

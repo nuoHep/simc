@@ -674,8 +674,8 @@ public:
     bool coordinated_assault;
   } affected_by;
 
-  hunter_action_t( util::string_view n, hunter_t* player, const spell_data_t* s = spell_data_t::nil() ):
-    ab( n, player, s ),
+  hunter_action_t( util::string_view n, hunter_t* p, const spell_data_t* s = spell_data_t::nil() ):
+    ab( n, p, s ),
     track_cd_waste( s -> cooldown() > 0_ms || s -> charge_cooldown() > 0_ms ),
     cd_waste( nullptr ),
     affected_by()
@@ -685,22 +685,28 @@ public:
     ab::may_crit = true;
     ab::tick_may_crit = true;
 
-    parse_affecting_aura( this, p() -> spells.hunter );
-    parse_affecting_aura( this, p() -> specs.beast_mastery_hunter );
-    parse_affecting_aura( this, p() -> specs.marksmanship_hunter );
-    parse_affecting_aura( this, p() -> specs.survival_hunter );
+    parse_affecting_aura( this, p -> spells.hunter );
+    parse_affecting_aura( this, p -> specs.beast_mastery_hunter );
+    parse_affecting_aura( this, p -> specs.marksmanship_hunter );
+    parse_affecting_aura( this, p -> specs.survival_hunter );
 
-    affected_by.aotw_crit_chance = ab::data().affected_by( p() -> specs.aspect_of_the_wild -> effectN( 1 ) );
-    affected_by.aotw_gcd_reduce = ab::data().affected_by( p() -> specs.aspect_of_the_wild -> effectN( 3 ) );
-    affected_by.bestial_wrath = ab::data().affected_by( p() -> specs.bestial_wrath -> effectN( 1 ) );
-    affected_by.master_of_beasts = ab::data().affected_by( p() -> mastery.master_of_beasts -> effectN( 3 ) );
-    affected_by.thrill_of_the_hunt = ab::data().affected_by( p() -> talents.thrill_of_the_hunt -> effectN( 1 ).trigger() -> effectN( 1 ) );
+    affected_by.aotw_crit_chance = ab::data().affected_by( p -> specs.aspect_of_the_wild -> effectN( 1 ) );
+    affected_by.aotw_gcd_reduce = ab::data().affected_by( p -> specs.aspect_of_the_wild -> effectN( 3 ) );
+    affected_by.bestial_wrath = ab::data().affected_by( p -> specs.bestial_wrath -> effectN( 1 ) );
+    affected_by.master_of_beasts = ab::data().affected_by( p -> mastery.master_of_beasts -> effectN( 3 ) );
+    affected_by.thrill_of_the_hunt = ab::data().affected_by( p -> talents.thrill_of_the_hunt -> effectN( 1 ).trigger() -> effectN( 1 ) );
 
-    affected_by.lone_wolf = ab::data().affected_by( p() -> specs.lone_wolf -> effectN( 1 ) );
-    affected_by.sniper_training = ab::data().affected_by( p() -> mastery.sniper_training -> effectN( 2 ) );
+    affected_by.lone_wolf = ab::data().affected_by( p -> specs.lone_wolf -> effectN( 1 ) );
+    affected_by.sniper_training = ab::data().affected_by( p -> mastery.sniper_training -> effectN( 2 ) );
 
-    affected_by.spirit_bond = ab::data().affected_by( p() -> mastery.spirit_bond -> effectN( 1 ) );
-    affected_by.coordinated_assault = ab::data().affected_by( p() -> specs.coordinated_assault -> effectN( 1 ) );
+    affected_by.spirit_bond = ab::data().affected_by( p -> mastery.spirit_bond -> effectN( 1 ) );
+    affected_by.coordinated_assault = ab::data().affected_by( p -> specs.coordinated_assault -> effectN( 1 ) );
+
+    // "ranks"
+    parse_affecting_aura( this, p -> find_specialization_spell( 262838 ) ); // Cobra Shot (Rank 2)
+    parse_affecting_aura( this, p -> find_specialization_spell( "Arcane Shot" ) );
+    parse_affecting_aura( this, p -> find_specialization_spell( "True Aim" ) );
+    parse_affecting_aura( this, p -> find_specialization_spell( "Wildfire Bombs" ) );
   }
 
   hunter_t* p()             { return static_cast<hunter_t*>( ab::player ); }
@@ -2247,7 +2253,8 @@ struct chimaera_shot_t: public hunter_ranged_attack_t
       hunter_ranged_attack_t( n, p, s )
     {
       dual = true;
-      parse_effect_data( p -> find_spell( 204304 ) -> effectN( 1 ) );
+      if ( p -> specialization() == HUNTER_BEAST_MASTERY )
+        parse_effect_data( p -> find_spell( 204304 ) -> effectN( 1 ) );
     }
   };
 
@@ -2293,14 +2300,11 @@ struct cobra_shot_t: public hunter_ranged_attack_t
 {
   const timespan_t kill_command_reduction;
 
-  cobra_shot_t( hunter_t* player, const std::string& options_str ):
-    hunter_ranged_attack_t( "cobra_shot", player, player -> find_specialization_spell( "Cobra Shot" ) ),
+  cobra_shot_t( hunter_t* p, const std::string& options_str ):
+    hunter_ranged_attack_t( "cobra_shot", p, p -> find_specialization_spell( "Cobra Shot" ) ),
     kill_command_reduction( timespan_t::from_seconds( data().effectN( 3 ).base_value() ) )
   {
     parse_options( options_str );
-
-    base_multiplier *= 1 + p() -> find_spell( 262838 ) -> effectN( 1 ).percent(); // Cobra Shot (Rank 3)
-    base_costs[ RESOURCE_FOCUS ] += player -> find_spell( 262837 ) -> effectN( 1 ).base_value(); // Cobra Shot (Rank 2)
   }
 
   void execute() override
@@ -2582,7 +2586,7 @@ struct aimed_shot_t : public aimed_shot_base_t
 struct arcane_shot_t: public hunter_ranged_attack_t
 {
   arcane_shot_t( hunter_t* p, const std::string& options_str ):
-    hunter_ranged_attack_t( "arcane_shot", p, p -> find_specialization_spell( "Arcane Shot" ) )
+    hunter_ranged_attack_t( "arcane_shot", p, p -> find_class_spell( "Arcane Shot" ) )
   {
     parse_options( options_str );
   }
@@ -2614,13 +2618,17 @@ struct arcane_shot_t: public hunter_ranged_attack_t
 struct steady_shot_t: public hunter_ranged_attack_t
 {
   steady_shot_t( hunter_t* p, const std::string& options_str ):
-    hunter_ranged_attack_t( "steady_shot", p, p -> find_specialization_spell( "Steady Shot" ) )
+    hunter_ranged_attack_t( "steady_shot", p, p -> find_class_spell( "Steady Shot" ) )
   {
     parse_options( options_str );
 
-    energize_type = ENERGIZE_ON_CAST;
-    energize_resource = RESOURCE_FOCUS;
-    energize_amount = data().effectN( 2 ).base_value();
+    spell_data_ptr_t r2 = p -> find_specialization_spell( "Steady Focus" );
+    if ( r2 -> ok() )
+    {
+      energize_type = ENERGIZE_ON_CAST;
+      energize_resource = RESOURCE_FOCUS;
+      energize_amount = r2 -> effectN( 1 ).base_value();
+    }
   }
 
   timespan_t execute_time() const override

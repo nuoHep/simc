@@ -56,6 +56,10 @@ void parse_affecting_aura( action_t *const action, const spell_data_t *const spe
       case A_ADD_FLAT_MODIFIER:
         switch( effect.misc_value1() )
         {
+        case P_CRIT:
+          action -> base_crit += effect.percent();
+          break;
+
         case P_RESOURCE_COST:
           action -> base_costs[ RESOURCE_FOCUS ] += effect.base_value();
           break;
@@ -401,7 +405,7 @@ public:
     spell_data_ptr_t animal_companion;
     spell_data_ptr_t dire_beast;
 
-    spell_data_ptr_t master_marksman_; // NYI
+    spell_data_ptr_t master_marksman;
     spell_data_ptr_t serpent_sting;
 
     spell_data_ptr_t vipers_venom;
@@ -2408,6 +2412,8 @@ struct aimed_shot_base_t: public hunter_ranged_attack_t
   {
     radius = 8;
     base_aoe_multiplier = p -> specs.trick_shots -> effectN( 4 ).percent();
+
+    parse_affecting_aura( p -> talents.master_marksman );
 
     if ( p -> talents.careful_aim -> ok() )
     {
@@ -4660,7 +4666,7 @@ void hunter_t::init_spells()
   talents.animal_companion                  = find_talent_spell( "Animal Companion" );
   talents.dire_beast                        = find_talent_spell( "Dire Beast" );
 
-  talents.master_marksman_                  = find_talent_spell( "Master Marksman" );
+  talents.master_marksman                   = find_talent_spell( "Master Marksman" );
   talents.serpent_sting                     = find_talent_spell( "Serpent Sting" );
 
   talents.vipers_venom                      = find_talent_spell( "Viper's Venom" );

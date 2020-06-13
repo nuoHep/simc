@@ -236,11 +236,6 @@ void print_html_report( const player_t& player, const player_data_t& data, repor
 // Hunter
 // ==========================================================================
 
-/* BfA TODO
- *  Survival
- *   - movement support for proper Harpoon & Terms of Engagement use
- */
-
 // somewhat arbitrary number of the maximum count of barbed shot buffs possible simultaneously
 constexpr unsigned BARBED_SHOT_BUFFS_MAX = 10;
 

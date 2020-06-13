@@ -328,7 +328,6 @@ public:
     buff_t* dire_beast;
     buff_t* thrill_of_the_hunt;
     buff_t* thrill_of_the_hunt_2;
-    buff_t* spitting_cobra;
 
     // Marksmanship
     buff_t* steady_focus;
@@ -336,7 +335,6 @@ public:
     buff_t* precise_shots;
     buff_t* trick_shots;
     buff_t* trueshot;
-    buff_t* master_marksman;
     buff_t* double_tap;
 
     // Survival
@@ -403,68 +401,69 @@ public:
     spell_data_ptr_t animal_companion;
     spell_data_ptr_t dire_beast;
 
-    spell_data_ptr_t master_marksman;
+    spell_data_ptr_t master_marksman_; // NYI
     spell_data_ptr_t serpent_sting;
 
     spell_data_ptr_t vipers_venom;
     spell_data_ptr_t terms_of_engagement;
     spell_data_ptr_t alpha_predator;
 
-    // tier 30
-    spell_data_ptr_t scent_of_blood;
+    // tier 25
+    spell_data_ptr_t scent_of_blood_; // NYI
     spell_data_ptr_t one_with_the_pack;
     spell_data_ptr_t chimaera_shot;
 
     spell_data_ptr_t careful_aim;
-    spell_data_ptr_t volley;
+    spell_data_ptr_t barrage;
     spell_data_ptr_t explosive_shot;
 
     spell_data_ptr_t guerrilla_tactics;
     spell_data_ptr_t hydras_bite;
     spell_data_ptr_t butchery;
 
-    // tier 45
+    // tier 30
     spell_data_ptr_t trailblazer;
     spell_data_ptr_t natural_mending;
     spell_data_ptr_t camouflage;
 
-    // tier 60
-    spell_data_ptr_t venomous_bite;
+    // tier 35
+    spell_data_ptr_t spitting_cobra_; // NYI
     spell_data_ptr_t thrill_of_the_hunt;
     spell_data_ptr_t a_murder_of_crows;
 
     spell_data_ptr_t steady_focus;
     spell_data_ptr_t streamline;
-    spell_data_ptr_t hunters_mark;
 
     spell_data_ptr_t bloodseeker;
     spell_data_ptr_t steel_trap;
 
-    // tier 75
+    // tier 40
     spell_data_ptr_t born_to_be_wild;
     spell_data_ptr_t posthaste;
     spell_data_ptr_t binding_shot;
 
-    // tier 90
+    spell_data_ptr_t binding_shackles;
+
+    // tier 45
     spell_data_ptr_t stomp;
-    spell_data_ptr_t barrage;
     spell_data_ptr_t stampede;
 
     spell_data_ptr_t lethal_shots;
+    spell_data_ptr_t dead_eye_; // NYI
     spell_data_ptr_t double_tap;
 
     spell_data_ptr_t tip_of_the_spear;
     spell_data_ptr_t mongoose_bite;
     spell_data_ptr_t flanking_strike;
 
-    // tier 100
-    spell_data_ptr_t killer_cobra;
+    // tier 50
     spell_data_ptr_t aspect_of_the_beast;
-    spell_data_ptr_t spitting_cobra;
+    spell_data_ptr_t killer_cobra;
+    spell_data_ptr_t bloodshed_; // NYI
 
     spell_data_ptr_t calling_the_shots;
     spell_data_ptr_t lock_and_load;
-    spell_data_ptr_t piercing_shot;
+    spell_data_ptr_t volley_; // NYI
 
     spell_data_ptr_t birds_of_prey;
     spell_data_ptr_t wildfire_infusion;
@@ -2199,16 +2198,6 @@ struct multi_shot_t: public hunter_ranged_attack_t
     }
   }
 
-  double cost() const override
-  {
-    double cost = hunter_ranged_attack_t::cost();
-
-    if ( p() -> buffs.master_marksman -> check() )
-      cost *= 1 + p() -> buffs.master_marksman -> check_value();
-
-    return cost;
-  }
-
   double action_multiplier() const override
   {
     double am = hunter_ranged_attack_t::action_multiplier();
@@ -2221,9 +2210,6 @@ struct multi_shot_t: public hunter_ranged_attack_t
   void execute() override
   {
     hunter_ranged_attack_t::execute();
-
-    p() -> buffs.master_marksman -> up(); // benefit tracking
-    p() -> buffs.master_marksman -> decrement();
 
     p() -> buffs.precise_shots -> decrement();
 
@@ -2306,12 +2292,10 @@ struct chimaera_shot_t: public hunter_ranged_attack_t
 struct cobra_shot_t: public hunter_ranged_attack_t
 {
   const timespan_t kill_command_reduction;
-  const timespan_t venomous_bite_reduction;
 
   cobra_shot_t( hunter_t* player, const std::string& options_str ):
     hunter_ranged_attack_t( "cobra_shot", player, player -> find_specialization_spell( "Cobra Shot" ) ),
-    kill_command_reduction( timespan_t::from_seconds( data().effectN( 3 ).base_value() ) ),
-    venomous_bite_reduction( timespan_t::from_millis( player -> talents.venomous_bite -> effectN( 1 ).base_value() * 100 ) )
+    kill_command_reduction( timespan_t::from_seconds( data().effectN( 3 ).base_value() ) )
   {
     parse_options( options_str );
 
@@ -2324,9 +2308,6 @@ struct cobra_shot_t: public hunter_ranged_attack_t
     hunter_ranged_attack_t::execute();
 
     p() -> cooldowns.kill_command -> adjust( -kill_command_reduction );
-
-    if ( p() -> talents.venomous_bite -> ok() )
-      p() -> cooldowns.bestial_wrath -> adjust( -venomous_bite_reduction );
 
     if ( p() -> talents.killer_cobra -> ok() && p() -> buffs.bestial_wrath -> check() )
       p() -> cooldowns.kill_command -> reset( true );
@@ -2556,7 +2537,6 @@ struct aimed_shot_t : public aimed_shot_base_t
     lock_and_loaded = false;
 
     p() -> buffs.precise_shots -> trigger( 1 + rng().range( p() -> buffs.precise_shots -> max_stack() ) );
-    p() -> buffs.master_marksman -> trigger();
 
     if ( rng().roll( surging_shots.chance ) )
     {
@@ -2607,24 +2587,11 @@ struct arcane_shot_t: public hunter_ranged_attack_t
     parse_options( options_str );
   }
 
-  double cost() const override
-  {
-    double cost = hunter_ranged_attack_t::cost();
-
-    if ( p() -> buffs.master_marksman -> check() )
-      cost *= 1 + p() -> buffs.master_marksman -> check_value();
-
-    return cost;
-  }
-
   void execute() override
   {
     hunter_ranged_attack_t::execute();
 
     p() -> buffs.precise_shots -> decrement();
-
-    p() -> buffs.master_marksman -> up(); // benefit tracking
-    p() -> buffs.master_marksman -> decrement();
 
     if ( p() -> talents.calling_the_shots -> ok() )
       p() -> cooldowns.trueshot -> adjust( - p() -> talents.calling_the_shots -> effectN( 1 ).time_value() );
@@ -4668,7 +4635,7 @@ void hunter_t::create_pets()
   if ( talents.dire_beast -> ok() )
     pets.dire_beast = new pets::dire_critter_t( this );
 
-  if ( talents.spitting_cobra -> ok() )
+  if ( talents.spitting_cobra_ -> ok() )
     pets.spitting_cobra = new pets::spitting_cobra_t( this );
 
   if ( azerite.dire_consequences.ok() )
@@ -4689,67 +4656,67 @@ void hunter_t::init_spells()
   talents.animal_companion                  = find_talent_spell( "Animal Companion" );
   talents.dire_beast                        = find_talent_spell( "Dire Beast" );
 
-  talents.master_marksman                   = find_talent_spell( "Master Marksman" );
+  talents.master_marksman_                  = find_talent_spell( "Master Marksman" );
   talents.serpent_sting                     = find_talent_spell( "Serpent Sting" );
 
   talents.vipers_venom                      = find_talent_spell( "Viper's Venom" );
   talents.terms_of_engagement               = find_talent_spell( "Terms of Engagement" );
   talents.alpha_predator                    = find_talent_spell( "Alpha Predator" );
 
-  // tier 30
-  talents.scent_of_blood                    = find_talent_spell( "Scent of Blood" );
+  // tier 25
+  talents.scent_of_blood_                   = find_talent_spell( "Scent of Blood" );
   talents.one_with_the_pack                 = find_talent_spell( "One with the Pack" );
   talents.chimaera_shot                     = find_talent_spell( "Chimaera Shot" );
 
   talents.careful_aim                       = find_talent_spell( "Careful Aim" );
-  talents.volley                            = find_talent_spell( "Volley" );
+  talents.barrage                           = find_talent_spell( "Barrage" );
   talents.explosive_shot                    = find_talent_spell( "Explosive Shot" );
 
   talents.guerrilla_tactics                 = find_talent_spell( "Guerrilla Tactics" );
   talents.hydras_bite                       = find_talent_spell( "Hydra's Bite" );
   talents.butchery                          = find_talent_spell( "Butchery" );
 
-  // tier 45
+  // tier 30
   talents.trailblazer                       = find_talent_spell( "Trailblazer" );
   talents.natural_mending                   = find_talent_spell( "Natural Mending" );
   talents.camouflage                        = find_talent_spell( "Camouflage" );
 
-  // tier 60
-  talents.venomous_bite                     = find_talent_spell( "Venomous Bite" );
+  // tier 35
+  talents.spitting_cobra_                   = find_talent_spell( "Spitting Cobra" );
   talents.thrill_of_the_hunt                = find_talent_spell( "Thrill of the Hunt" );
   talents.a_murder_of_crows                 = find_talent_spell( "A Murder of Crows" );
 
   talents.steady_focus                      = find_talent_spell( "Steady Focus" );
   talents.streamline                        = find_talent_spell( "Streamline" );
-  talents.hunters_mark                      = find_talent_spell( "Hunter's Mark" );
 
   talents.bloodseeker                       = find_talent_spell( "Bloodseeker" );
   talents.steel_trap                        = find_talent_spell( "Steel Trap" );
 
-  // tier 75
+  // tier 40
   talents.born_to_be_wild                   = find_talent_spell( "Born To Be Wild" );
   talents.posthaste                         = find_talent_spell( "Posthaste" );
   talents.binding_shot                      = find_talent_spell( "Binding Shot" );
 
-  // tier 90
+  // tier 45
   talents.stomp                             = find_talent_spell( "Stomp" );
-  talents.barrage                           = find_talent_spell( "Barrage" );
   talents.stampede                          = find_talent_spell( "Stampede" );
 
   talents.lethal_shots                      = find_talent_spell( "Lethal Shots" );
+  talents.dead_eye_                         = find_talent_spell( "Dead Eye" );
   talents.double_tap                        = find_talent_spell( "Double Tap" );
 
   talents.tip_of_the_spear                  = find_talent_spell( "Tip of the Spear" );
   talents.mongoose_bite                     = find_talent_spell( "Mongoose Bite" );
   talents.flanking_strike                   = find_talent_spell( "Flanking Strike" );
 
-  // tier 100
-  talents.killer_cobra                      = find_talent_spell( "Killer Cobra" );
+  // tier 50
   talents.aspect_of_the_beast               = find_talent_spell( "Aspect of the Beast" );
-  talents.spitting_cobra                    = find_talent_spell( "Spitting Cobra" );
+  talents.killer_cobra                      = find_talent_spell( "Killer Cobra" );
+  talents.bloodshed_                        = find_talent_spell( "Bloodshed" );
 
   talents.calling_the_shots                 = find_talent_spell( "Calling the Shots" );
   talents.lock_and_load                     = find_talent_spell( "Lock and Load" );
+  talents.volley_                           = find_talent_spell( "Volley" );
 
   talents.birds_of_prey                     = find_talent_spell( "Birds of Prey" );
   talents.wildfire_infusion                 = find_talent_spell( "Wildfire Infusion" );
@@ -4892,8 +4859,7 @@ void hunter_t::create_buffs()
   {
     buffs.barbed_shot[ i ] =
       make_buff( this, fmt::format( "barbed_shot_{}", i + 1 ), barbed_shot )
-        -> set_default_value( barbed_shot -> effectN( 1 ).resource( RESOURCE_FOCUS ) +
-                              talents.scent_of_blood -> effectN( 1 ).base_value() )
+        -> set_default_value( barbed_shot -> effectN( 1 ).resource( RESOURCE_FOCUS ) )
         -> set_tick_callback( [ this ]( buff_t* b, int, timespan_t ) {
                           resource_gain( RESOURCE_FOCUS, b -> default_value, gains.barbed_shot );
                         } );
@@ -4915,14 +4881,6 @@ void hunter_t::create_buffs()
     -> set_default_value( thrill_of_the_hunt_2 -> effectN( 1 ).percent() )
     -> set_trigger_spell( talents.thrill_of_the_hunt )
     -> set_quiet( true );
-
-  buffs.spitting_cobra =
-    make_buff( this, "spitting_cobra", talents.spitting_cobra );
-      // TODO: XXX: Beta!
-      // -> set_default_value( find_spell( 194407 ) -> effectN( 2 ).resource( RESOURCE_FOCUS ) )
-      // -> set_tick_callback( [ this ]( buff_t *buff, int, timespan_t ){
-      //                   resource_gain( RESOURCE_FOCUS, buff -> default_value, gains.spitting_cobra );
-      //                 } );
 
   // Marksmanship
 
@@ -4952,11 +4910,6 @@ void hunter_t::create_buffs()
   buffs.lock_and_load =
     make_buff( this, "lock_and_load", talents.lock_and_load -> effectN( 1 ).trigger() )
       -> set_trigger_spell( talents.lock_and_load );
-
-  buffs.master_marksman =
-    make_buff( this, "master_marksman", talents.master_marksman -> effectN( 1 ).trigger() )
-      -> set_default_value( talents.master_marksman -> effectN( 1 ).trigger() -> effectN( 1 ).percent() )
-      -> set_trigger_spell( talents.master_marksman );
 
   buffs.steady_focus =
     make_buff( this, "steady_focus", find_spell( 193534 ) )
@@ -5412,13 +5365,13 @@ void hunter_t::apl_mm()
   st -> add_action( this, "Rapid Fire", "if=buff.trueshot.down|focus<35|focus<60&!talent.lethal_shots.enabled|buff.in_the_rhythm.remains<execute_time");
   st -> add_action( "blood_of_the_enemy,if=buff.trueshot.up&(buff.unerring_vision.stack>4|!azerite.unerring_vision.enabled)|target.time_to_die<11" );
   st -> add_action( "focused_azerite_beam,if=!buff.trueshot.up|target.time_to_die<5" );
-  st -> add_action( this, "Arcane Shot", "if=buff.trueshot.up&buff.master_marksman.up&!buff.memory_of_lucid_dreams.up");
+  st -> add_action( this, "Arcane Shot", "if=buff.trueshot.up&!buff.memory_of_lucid_dreams.up");
   st -> add_action( this, "Aimed Shot", "if=buff.trueshot.up|(buff.double_tap.down|ca_execute)&buff.precise_shots.down|full_recharge_time<cast_time&cooldown.trueshot.remains" );
-  st -> add_action( this, "Arcane Shot", "if=buff.trueshot.up&buff.master_marksman.up&buff.memory_of_lucid_dreams.up" );
+  st -> add_action( this, "Arcane Shot", "if=buff.trueshot.up&buff.memory_of_lucid_dreams.up" );
   st -> add_action( "purifying_blast,if=!buff.trueshot.up|target.time_to_die<8" );
   st -> add_action( "concentrated_flame,if=focus+focus.regen*gcd<focus.max&buff.trueshot.down&(!dot.concentrated_flame_burn.remains&!action.concentrated_flame.in_flight)|full_recharge_time<gcd|target.time_to_die<5" );
   st -> add_action( "the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10|target.time_to_die<5" );
-  st -> add_action( this, "Arcane Shot", "if=buff.trueshot.down&(buff.precise_shots.up&(focus>55|buff.master_marksman.up)|focus>75|target.time_to_die<5)" );
+  st -> add_action( this, "Arcane Shot", "if=buff.trueshot.down&(buff.precise_shots.up&(focus>55)|focus>75|target.time_to_die<5)" );
   st -> add_action( this, "Steady Shot" );
 
   trickshots -> add_talent( this, "Barrage" );

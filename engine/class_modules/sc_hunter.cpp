@@ -1678,7 +1678,7 @@ struct beast_cleave_attack_t: public hunter_pet_action_t<hunter_main_pet_base_t,
   beast_cleave_attack_t( hunter_main_pet_base_t* p ):
     hunter_pet_action_t( "beast_cleave", p, p -> find_spell( 118459 ) )
   {
-    aoe = -1;
+    aoe = 5;
     background = true;
     callbacks = false;
     may_miss = false;
@@ -2138,7 +2138,7 @@ struct barrage_t: public hunter_spell_t
     barrage_damage_t( util::string_view n, hunter_t* p ):
       hunter_ranged_attack_t( n, p, p -> talents.barrage -> effectN( 1 ).trigger() )
     {
-      aoe = -1;
+      aoe = 8;
       radius = 0; //Barrage attacks all targets in front of the hunter, so setting radius to 0 will prevent distance targeting from using a 40 yard radius around the target.
       // Todo: Add in support to only hit targets in the frontal cone.
     }
@@ -2193,7 +2193,7 @@ struct multi_shot_t: public hunter_ranged_attack_t
     hunter_ranged_attack_t( "multishot", p, p -> find_specialization_spell( "Multi-Shot" ) )
   {
     parse_options( options_str );
-    aoe = -1;
+    aoe = 5;
 
     if ( p -> azerite.rapid_reload.ok() )
     {
@@ -2897,7 +2897,7 @@ struct explosive_shot_t: public hunter_ranged_attack_t
     {
       background = true;
       dual = true;
-      aoe = -1;
+      aoe = 6;
     }
   };
 
@@ -3193,24 +3193,22 @@ struct flanking_strike_t: hunter_melee_attack_t
 struct carve_base_t: public hunter_melee_attack_t
 {
   const timespan_t wfb_reduction;
-  const int wfb_reduction_target_cap;
   internal_bleeding_t internal_bleeding;
 
   carve_base_t( util::string_view n, hunter_t* p, const spell_data_t* s,
-                timespan_t wfb_reduction, int wfb_reduction_target_cap ):
+                timespan_t wfb_reduction ):
     hunter_melee_attack_t( n, p, s ),
     wfb_reduction( wfb_reduction ),
-    wfb_reduction_target_cap( wfb_reduction_target_cap ),
     internal_bleeding( p )
   {
-    aoe = -1;
+    aoe = 5;
   }
 
   void execute() override
   {
     hunter_melee_attack_t::execute();
 
-    auto reduction = wfb_reduction * std::min( num_targets_hit, wfb_reduction_target_cap );
+    auto reduction = wfb_reduction * num_targets_hit;
     p() -> cooldowns.wildfire_bomb -> adjust( -reduction, true );
   }
 
@@ -3229,8 +3227,7 @@ struct carve_t: public carve_base_t
 {
   carve_t( hunter_t* p, const std::string& options_str ):
     carve_base_t( "carve", p, p -> specs.carve ,
-                  p -> specs.carve -> effectN( 2 ).time_value(),
-                  as<int>(p -> specs.carve -> effectN( 3 ).base_value() ))
+                  p -> specs.carve -> effectN( 2 ).time_value() )
   {
     parse_options( options_str );
 
@@ -3245,8 +3242,7 @@ struct butchery_t: public carve_base_t
 {
   butchery_t( hunter_t* p, const std::string& options_str ):
     carve_base_t( "butchery", p, p -> talents.butchery,
-                  p -> talents.butchery -> effectN( 2 ).time_value() ,
-                  as<int>(p -> talents.butchery -> effectN( 3 ).base_value() ))
+                  p -> talents.butchery -> effectN( 2 ).time_value() )
   {
     parse_options( options_str );
   }

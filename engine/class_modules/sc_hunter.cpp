@@ -471,11 +471,17 @@ public:
     spell_data_ptr_t chakrams;
   } talents;
 
-  // Specialization Spells
-  struct specs_t
+  // Class Spells
+  struct spells_t
   {
     spell_data_ptr_t critical_strikes;
     spell_data_ptr_t hunter;
+    spell_data_ptr_t hunters_mark;
+  } spells;
+
+  // Specialization Spells
+  struct specs_t
+  {
     spell_data_ptr_t beast_mastery_hunter;
     spell_data_ptr_t marksmanship_hunter;
     spell_data_ptr_t survival_hunter;
@@ -680,7 +686,7 @@ public:
     ab::may_crit = true;
     ab::tick_may_crit = true;
 
-    parse_affecting_aura( this, p() -> specs.hunter );
+    parse_affecting_aura( this, p() -> spells.hunter );
     parse_affecting_aura( this, p() -> specs.beast_mastery_hunter );
     parse_affecting_aura( this, p() -> specs.marksmanship_hunter );
     parse_affecting_aura( this, p() -> specs.survival_hunter );
@@ -1028,7 +1034,7 @@ public:
   {
     ab::init();
 
-    parse_affecting_aura( this, o() -> specs.hunter );
+    parse_affecting_aura( this, o() -> spells.hunter );
     parse_affecting_aura( this, o() -> specs.beast_mastery_hunter );
     parse_affecting_aura( this, o() -> specs.marksmanship_hunter );
     parse_affecting_aura( this, o() -> specs.survival_hunter );
@@ -3983,7 +3989,7 @@ struct trueshot_t: public hunter_spell_t
 struct hunters_mark_t: public hunter_spell_t
 {
   hunters_mark_t( hunter_t* p, const std::string& options_str ):
-    hunter_spell_t( "hunters_mark", p, p -> talents.hunters_mark )
+    hunter_spell_t( "hunters_mark", p, p -> spells.hunters_mark )
   {
     parse_options( options_str );
 
@@ -4355,8 +4361,8 @@ hunter_td_t::hunter_td_t( player_t* target, hunter_t* p ):
   dots()
 {
   debuffs.hunters_mark =
-    make_buff( *this, "hunters_mark", p -> talents.hunters_mark )
-      -> set_default_value( p -> talents.hunters_mark -> effectN( 1 ).percent() );
+    make_buff( *this, "hunters_mark", p -> spells.hunters_mark )
+      -> set_default_value( p -> spells.hunters_mark -> effectN( 1 ).percent() );
 
   debuffs.latent_poison =
     make_buff( *this, "latent_poison", p -> find_spell( 273286 ) )
@@ -4754,9 +4760,12 @@ void hunter_t::init_spells()
   mastery.sniper_training      = find_mastery_spell( HUNTER_MARKSMANSHIP );
   mastery.spirit_bond          = find_mastery_spell( HUNTER_SURVIVAL );
 
+  // Class spells
+  spells.critical_strikes     = find_spell( 157443 );
+  spells.hunter               = find_spell( 137014 );
+  spells.hunters_mark         = find_class_spell( "Hunter's Mark" );
+
   // Spec spells
-  specs.critical_strikes     = find_spell( 157443 );
-  specs.hunter               = find_spell( 137014 );
   specs.beast_mastery_hunter = find_specialization_spell( "Beast Mastery Hunter" );
   specs.marksmanship_hunter  = find_specialization_spell( "Marksmanship Hunter" );
   specs.survival_hunter      = find_specialization_spell( "Survival Hunter" );
@@ -5380,7 +5389,7 @@ void hunter_t::apl_mm()
   default_list -> add_action( "call_action_list,name=st,if=active_enemies<3" );
   default_list -> add_action( "call_action_list,name=trickshots,if=active_enemies>2" );
 
-  cds -> add_talent( this, "Hunter's Mark", "if=debuff.hunters_mark.down&!buff.trueshot.up" );
+  cds -> add_action( this, "Hunter's Mark", "if=debuff.hunters_mark.down&!buff.trueshot.up" );
   cds -> add_talent( this, "Double Tap", "if=cooldown.rapid_fire.remains<gcd|cooldown.rapid_fire.remains<cooldown.aimed_shot.remains|target.time_to_die<20" );
   cds -> add_action( "berserking,if=prev_gcd.1.trueshot&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<13" );
   cds -> add_action( "blood_fury,if=prev_gcd.1.trueshot&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<16" );
@@ -5671,7 +5680,7 @@ double hunter_t::composite_melee_crit_chance() const
 {
   double crit = player_t::composite_melee_crit_chance();
 
-  crit += specs.critical_strikes -> effectN( 1 ).percent();
+  crit += spells.critical_strikes -> effectN( 1 ).percent();
 
   return crit;
 }
@@ -5682,7 +5691,7 @@ double hunter_t::composite_spell_crit_chance() const
 {
   double crit = player_t::composite_spell_crit_chance();
 
-  crit += specs.critical_strikes -> effectN( 1 ).percent();
+  crit += spells.critical_strikes -> effectN( 1 ).percent();
 
   return crit;
 }

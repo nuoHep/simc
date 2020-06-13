@@ -1227,7 +1227,6 @@ struct hunter_main_pet_t : public hunter_main_pet_base_t
     gain_t* aspect_of_the_wild = nullptr;
   } gains;
 
-  const spell_data_t* endurance_training = find_spell( 264662 );
   double owner_hp_mult = 1;
 
   hunter_main_pet_t( hunter_t* owner, const std::string& pet_name, pet_e pt ):
@@ -1238,7 +1237,10 @@ struct hunter_main_pet_t : public hunter_main_pet_base_t
     _spec = default_spec();
 
     if ( _spec == PET_TENACITY )
+    {
+      spell_data_ptr_t endurance_training = find_spell( 264662 );
       owner_hp_mult = 1 + endurance_training->effectN( 2 ).percent() * ( 1 + o() -> talents.aspect_of_the_beast->effectN( 4 ).percent() );
+    }
   }
 
   specialization_e default_spec()

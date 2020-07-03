@@ -165,16 +165,11 @@ std::string _encoded_enchant_name( const dbc_t& dbc, const item_enchantment_data
  * both have ranks, and there also is a "lower rank" item enchant of the same
  * name, we need to somehow cover that case. Highly unlikely in practice.
  */
-std::string enchant::encoded_enchant_name( const dbc_t& dbc, const item_enchantment_data_t& enchant )
+const std::string& enchant::encoded_enchant_name( const dbc_t& dbc, const item_enchantment_data_t& enchant )
 {
-  auto key = enchant_map_key( dbc, enchant );
-  auto it  = cached_enchant_names.find( key );
-  if ( it != cached_enchant_names.end() )
-  {
-    return ( *it ).second;
-  }
-  auto name                   = _encoded_enchant_name( dbc, enchant );
-  cached_enchant_names[ key ] = name;
+  std::string& name = cached_enchant_names[ enchant_map_key( dbc, enchant ) ];
+  if ( name.empty() )
+    name = _encoded_enchant_name( dbc, enchant );
   return name;
 }
 
@@ -441,8 +436,7 @@ const item_enchantment_data_t& enchant::find_meta_gem( const dbc_t& dbc, util::s
     if ( gem.id != data.id_gem )
       continue;
 
-    std::string tokenized_name = gem.name;
-    util::tokenize( tokenized_name );
+    std::string tokenized_name = util::tokenize_fn( gem.name );
     util::string_view shortname;
     std::string::size_type offset = tokenized_name.find( "_diamond" );
     if ( offset != std::string::npos )
@@ -471,12 +465,11 @@ meta_gem_e enchant::meta_gem_type( const dbc_t& dbc, const item_enchantment_data
   if ( gem.id == 0 )
     return META_GEM_NONE;
 
-  std::string tokenized_name = gem.name;
-  util::tokenize( tokenized_name );
-  std::string shortname;
+  std::string tokenized_name = util::tokenize_fn( gem.name );
+  util::string_view shortname;
   std::string::size_type offset = tokenized_name.find( "_diamond" );
   if ( offset != std::string::npos )
-    shortname = tokenized_name.substr( 0, offset );
+    shortname = util::string_view( tokenized_name ).substr( 0, offset );
 
   return util::parse_meta_gem_type( shortname );
 }

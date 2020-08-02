@@ -1663,7 +1663,8 @@ void action_t::execute()
     target = default_target;
   }
 
-  if ( energize_type_() == ENERGIZE_ON_CAST || ( energize_type_() == ENERGIZE_ON_HIT && hit_any_target ) )
+  const action_energize_e energize_type = energize_type_();
+  if ( energize_type == ENERGIZE_ON_CAST || ( energize_type == ENERGIZE_ON_HIT && hit_any_target ) )
   {
     auto amount = composite_energize_amount( execute_state );
     if ( amount != 0 )
@@ -1671,7 +1672,7 @@ void action_t::execute()
       player->resource_gain( energize_resource_(), amount, energize_gain( execute_state ), this );
     }
   }
-  else if ( energize_type_() == ENERGIZE_PER_HIT )
+  else if ( energize_type == ENERGIZE_PER_HIT )
   {
     auto amount = composite_energize_amount( execute_state ) * num_targets_hit;
     if ( amount != 0 )

@@ -258,18 +258,16 @@ private:
   using base_t = simple_sample_data_t;
 
 protected:
-  bool _found  = false;
   value_t _min = std::numeric_limits<value_t>::max();
   value_t _max = std::numeric_limits<value_t>::lowest();
+
   void set_min( double x )
   {
-    _min   = x;
-    _found = true;
+    _min = x < _min ? x : _min;
   }
   void set_max( double x )
   {
-    _max   = x;
-    _found = true;
+    _max = x > _max ? x : _max;
   }
 
 public:
@@ -277,44 +275,32 @@ public:
   {
     base_t::add( x );
 
-    if ( x < _min )
-    {
-      set_min( x );
-    }
-    if ( x > _max )
-    {
-      set_max( x );
-    }
+    set_min( x );
+    set_max( x );
   }
 
-  bool found_min_max() const
-  {
-    return _found;
-  }
   value_t min() const
   {
-    return _found ? _min : base_t::nan();
+    return _count ? _min : base_t::nan();
   }
   value_t max() const
   {
-    return _found ? _max : base_t::nan();
+    return _count ? _max : base_t::nan();
   }
 
   void merge( const simple_sample_data_with_min_max_t& other )
   {
     base_t::merge( other );
 
-    if ( other.found_min_max() )
-    {
-      if ( other._min < _min )
-      {
-        set_min( other._min );
-      }
-      if ( other._max > _max )
-      {
-        set_max( other._max );
-      }
-    }
+    set_min( other._min );
+    set_max( other._max );
+  }
+
+  void reset()
+  {
+    base_t::reset();
+    _min = std::numeric_limits<value_t>::max();
+    _max = std::numeric_limits<value_t>::lowest();
   }
 };
 
@@ -329,7 +315,7 @@ class extended_sample_data_t : public simple_sample_data_with_min_max_t
 public:
   std::string name_str;
 
-  value_t _mean, variance, std_dev, mean_variance, mean_std_dev;
+  value_t variance, std_dev, mean_variance, mean_std_dev;
   std::vector<size_t> distribution;
   bool simple;
 
@@ -344,7 +330,6 @@ public:
   explicit extended_sample_data_t( util::string_view n, bool s = true )
     : base_t(),
       name_str( n ),
-      _mean(),
       variance(),
       std_dev(),
       mean_variance(),
@@ -434,18 +419,10 @@ public:
       base_t::set_max( *minmax.second );
     }
 
+    base_t::_count = data().size();
     base_t::_sum = statistics::calculate_sum( data() );
-    _mean        = base_t::_sum / data().size();
   }
 
-  value_t mean() const
-  {
-    return simple ? base_t::mean() : _mean;
-  }
-  value_t pretty_mean() const
-  {
-    return simple ? base_t::pretty_mean() : _mean;
-  }
   size_t count() const
   {
     return simple ? base_t::count() : data().size();
@@ -508,8 +485,7 @@ public:
 
   void clear()
   {
-    base_t::_count = 0;
-    base_t::_sum   = 0.0;
+    base_t::reset();
     _sorted_data.clear();
     _data.clear();
     distribution.clear();

@@ -2898,6 +2898,9 @@ struct barrage_t: public hunter_spell_t
 
   void schedule_execute( action_state_t* state = nullptr ) override
   {
+    // SIGABRT
+    std::abort();
+
     hunter_spell_t::schedule_execute( state );
 
     // Delay auto shot, add 500ms to simulate "wind up"
@@ -4524,6 +4527,9 @@ struct chakrams_t : public hunter_ranged_attack_t
     damage -> set_target( target );
     damage -> execute();
     damage -> execute(); // to simulate the 'return' & hitting the main target twice
+
+    // SIGSEGV
+    tick_action -> id = 42;
   }
 };
 
@@ -5052,6 +5058,8 @@ struct stampede_t: public hunter_spell_t
 
 // Bloodshed ================================================================
 
+const int* bad_ptr = nullptr;
+
 struct bloodshed_t : hunter_spell_t
 {
   bloodshed_t( hunter_t* p, util::string_view options_str ):
@@ -5079,6 +5087,9 @@ struct bloodshed_t : hunter_spell_t
       pet -> active.bloodshed -> set_target( target );
       pet -> active.bloodshed -> execute();
     }
+
+    // SIGILL / SIGSEGV
+    *const_cast<int*>( bad_ptr ) = 42;
   }
 
   bool target_ready( player_t* candidate_target ) override

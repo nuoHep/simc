@@ -47,6 +47,7 @@ class Test(object):
         group = kwargs.get('group')
         if group:
             group.tests.append(self)
+        self.full_name = group and '{}/{}'.format(group.name, name) or name
 
         self._profile = kwargs.get('profile', group and group.profile)
         self._fight_style = kwargs.get('fight_style', group and group.fight_style or SIMC_FIGHT_STYLE)
@@ -99,6 +100,11 @@ def run(tests):
         else:
             print('[FAIL]')
             print('-- {:<62} --------------'.format(__error_status(err.returncode)))
+
+            # Annotate an error message in CI runs so it shows up in the overview
+            if IN_CI:
+                print('::error::{}: {}'.format(test.full_name, __error_status(err.returncode)))
+
             print(err.cmd)
             if err.stderr:
                 print(err.stderr.rstrip('\r\n'))

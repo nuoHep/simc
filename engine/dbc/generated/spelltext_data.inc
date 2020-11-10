@@ -1766,7 +1766,7 @@ static const std::array<spelltext_data_t, 14873> __spelltext_data { {
   {  56285, "$@spelldesc56246", 0, 0 },
   {  56315, "Increases your maximum Focus and your pet's maximum Focus by $s1.", 0, 0 },
   {  56355, "Deals $s1 damage.", "Deals $s1 damage.", 0 },
-  {  56377, "Your Ice Lance and Icicles now deal $s3% increased damage, and hit a second nearby target for $s2% of their damage.\r\n\r\nYour Ebonbolt and Glacial Spike also hit a second nearby target for $s2% of its damage.", 0, 0 },
+  {  56377, "Your Ice Lance and Icicles now deal $s3% increased damage, and hit a second nearby target for ${$s2-15}% of their damage.\r\n\r\nYour Ebonbolt and Glacial Spike also hit a second nearby target for $s2% of its damage.", 0, 0 },
   {  56382, "When cast on critters, your Polymorph spells now last 1 day and can be cast on multiple targets.", 0, 0 },
   {  56384, "Your Blink spell teleports you in the direction you are moving instead of the direction you are facing.", 0, 0 },
   {  56599, "$@spelldesc56382", 0, 0 },
@@ -14876,7 +14876,8 @@ static const std::array<spelltext_data_t, 14873> __spelltext_data { {
 } };
 
 // spelltext hotfix entries, wow build 9.0.1.36577
-static constexpr std::array<hotfix::client_hotfix_entry_t, 18> __spelltext_hotfix_data { {
+static constexpr std::array<hotfix::client_hotfix_entry_t, 19> __spelltext_hotfix_data { {
+  {   56377,  0, "Your Ice Lance and Icicles now deal $s3% increased damage, and hit a second nearby target for $s2% of their damage.\r\n\r\nYour Ebonbolt and Glacial Spike also hit a second nearby target for $s2% of its damage.", "Your Ice Lance and Icicles now deal $s3% increased damage, and hit a second nearby target for ${$s2-15}% of their damage.\r\n\r\nYour Ebonbolt and Glacial Spike also hit a second nearby target for $s2% of its damage." },
   {  227563,  0, "Calms the mind, allowing you to adjust talents while not in combat for $d. Cannot be used above level $ctrmax2067.", "Calms the mind, allowing you to adjust talents while not in combat for $d. Cannot be used above level $maxcast." },
   {  257284,  0, "Apply Hunter's Mark to the target, increasing all damage you deal to the marked target by $s1%. The target can always be seen and tracked by the Hunter.\r\n\r\nOnly one Hunter's Mark can be applied at a time.\r\n\r\nThe cooldown of Hunter's Mark is reset if the target dies.", "Apply Hunter's Mark to the target, causing the target to always be seen and tracked by the Hunter.\r\n\r\nOnly one Hunter's Mark can be applied at a time." },
   {  257284,  1, "Damage taken from $@auracaster increased by $s1%$?a339264[ and damage dealt to $@auracaster is reduced by $339264s1%][].\r\n\r\nCan always be seen and tracked by the Hunter.", "Can always be seen and tracked by the Hunter.$?a339264[\r\n\r\nDamage dealt to $@auracaster is reduced by $339264s1%.][]" },
@@ -14899,7 +14900,7 @@ static constexpr std::array<hotfix::client_hotfix_entry_t, 18> __spelltext_hotfi
 
 // Spell description variables, wow build 9.0.1.36577
 static const std::array<spelldesc_vars_data_t, 274> __spelldesc_vars_data { {
-  {      17, "$rapture=$?a47536[${(1+$47536s1/100)}][${1}]\r\n$shadow=$?a137033[${1.00}][${1}]\r\n$shield=${$SP*1.8*(1+$@versadmg)*$<rapture>*$<shadow>}" },
+  {      17, "$rapture=$?a47536[${(1+$47536s1/100)}][${1}]\r\n$shadow=$?a137033[${1.00}][${1}]\r\n$shield=${$SP*1.65*(1+$@versadmg)*$<rapture>*$<shadow>}" },
   {      53, "$mult=${($max(0,$min($pl-10,10))*11+260)/370}" },
   {     120, "$arctic1=$?s31674[${1.01}][${1}]\r\n$arctic2=$?s31675[${1.02}][${$<arctic1>}]\r\n$arctic3=$?s31676[${1.03}][${$<arctic2>}]\r\n$arctic4=$?s31677[${1.04}][${$<arctic3>}]\r\n$arctic5=$?s31678[${1.05}][${$<arctic4>}]\r\n$piercing1=$?s11151[${1.02}][${1}]\r\n$piercing2=$?s12952[${1.04}][${$<piercing1>}]\r\n$piercing3=$?s12953[${1.06}][${$<piercing2>}]\r\n$mult=${$<arctic5>*$<piercing3>}" },
   {     122, "$arctic1=$?s31674[${1.01}][${1}]\r\n$arctic2=$?s31675[${1.02}][${$<arctic1>}]\r\n$arctic3=$?s31676[${1.03}][${$<arctic2>}]\r\n$arctic4=$?s31677[${1.04}][${$<arctic3>}]\r\n$arctic5=$?s31678[${1.05}][${$<arctic4>}]\r\n$piercing1=$?s11151[${1.02}][${1}]\r\n$piercing2=$?s12952[${1.04}][${$<piercing1>}]\r\n$piercing3=$?s12953[${1.06}][${$<piercing2>}]\r\n$mult=${$<arctic5>*$<piercing3>}" },
@@ -15177,7 +15178,7 @@ static const std::array<spelldesc_vars_data_t, 274> __spelldesc_vars_data { {
 
 // spelldesc_vars hotfix entries, wow build 9.0.1.36577
 static constexpr std::array<hotfix::client_hotfix_entry_t, 4> __spelldesc_vars_hotfix_data { {
-  {      17,  0, "$rapture=$?a47536[${(1+$47536s1/100)}][${1}]\r\n$shadow=$?a137033[${1.36}][${1}]\r\n$shield=${$SP*2*(1+$@versadmg)*$<rapture>*$<shadow>}", "$rapture=$?a47536[${(1+$47536s1/100)}][${1}]\r\n$shadow=$?a137033[${1.00}][${1}]\r\n$shield=${$SP*1.8*(1+$@versadmg)*$<rapture>*$<shadow>}" },
+  {      17,  0, "$rapture=$?a47536[${(1+$47536s1/100)}][${1}]\r\n$shadow=$?a137033[${1.36}][${1}]\r\n$shield=${$SP*2*(1+$@versadmg)*$<rapture>*$<shadow>}", "$rapture=$?a47536[${(1+$47536s1/100)}][${1}]\r\n$shadow=$?a137033[${1.00}][${1}]\r\n$shield=${$SP*1.65*(1+$@versadmg)*$<rapture>*$<shadow>}" },
   {  296320,  0, "$cooldownValue=${($m1+2896)/-100}.1\r\n$cooldown=${$clamp($<cooldownValue>,10,25)}.1", "$cooldownValue=${($m1+3320)/-100}.1\r\n$cooldown=${$clamp($<cooldownValue>,10,25)}.1" },
   {  299367,  0, "$cooldownValue=${($m1+2896)/-100}.1\r\n$cooldown=${$clamp($<cooldownValue>,10,25)}.1", "$cooldownValue=${($m1+3320)/-100}.1\r\n$cooldown=${$clamp($<cooldownValue>,10,25)}.1" },
   {  299369,  0, "$cooldownValue=${($m1+2896)/-100}.1\r\n$cooldown=${$clamp($<cooldownValue>,10,25)}.1", "$cooldownValue=${($m1+3320)/-100}.1\r\n$cooldown=${$clamp($<cooldownValue>,10,25)}.1" },

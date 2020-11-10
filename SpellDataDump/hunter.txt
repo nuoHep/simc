@@ -1,4 +1,4 @@
-SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (git build shadowlands 2d455ee3aa)
+SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (hotfix 2020-11-10/36577, git build shadowlands 2d455ee3aa)
 
 Name             : Auto Shot (id=75) [Spell Family (9)] 
 Class            : Hunter
@@ -414,11 +414,11 @@ $?s193455[Cobra Shot][Steady Shot] will increase the duration of Concussive Shot
 Tooltip          : Movement slowed by $s1%.
 
 Name             : Feign Death (id=5384) [Spell Family (9)] 
+Hotfixed         : Velocity (0.2 -> 0)
 Class            : Hunter
 School           : Physical
 Spell Type       : None
 Spell Level      : 6
-Travel Time      : 0.2 seconds
 Duration         : 360 seconds
 Cooldown         : 30 seconds
 Affecting spells : Improved Feign Death (24432 effect#1), Duck and Cover (280169 effect#2), Craven Strategem (336747 effect#1)
@@ -1368,7 +1368,8 @@ Effects          :
 Description      : Your pet removes all root and movement impairing effects from itself and a friendly target, and grants immunity to all such effects for $54216d.
 
 Name             : Kill Shot (id=53351) [Spell Family (9)] 
-Class            : Beast Mastery Marksmanship Hunter
+Hotfixed         : Attributes
+Class            : Hunter
 School           : Physical
 Spell Type       : Ranged
 Resource         : 10 Focus (2) (id=192720)
@@ -1388,7 +1389,7 @@ Attributes       : .x..x... ........ x....... ........   ........ .x...... .....
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
                  : ........ ........ ........ ........   x....... ........ ........ ........ 
-                 : ........ ........ ........ ........   
+                 : x....... ........ ........ ........   
                  : Ranged Ability (1)
 Effects          :
 #1 (id=45989)    : School Damage (2): physical
@@ -2028,10 +2029,11 @@ Effects          :
 Description      : Allows you to give commands to control your pet.
 
 Name             : Control Pet (desc=Passive) (id=93322) [Hidden] 
+Hotfixed         : Learn Level (0 -> 1), Required Level (10 -> 1)
 Class            : Hunter
 School           : Physical
 Spell Type       : None
-Spell Level      : 10
+Spell Level      : 1
 Proc Chance      : 101%
 Attributes       : .......x x....... ........ ........   ........ ........ ........ .......x 
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
@@ -5527,6 +5529,7 @@ Effects          :
 Description      : $@spelldesc257044
 
 Name             : Hunter's Mark (id=257284) [Spell Family (9)] 
+Hotfixed         : Cooldown (20000 -> 0), Description, Tooltip
 Class            : Hunter
 School           : Nature
 Spell Type       : Magic
@@ -5534,7 +5537,6 @@ Spell Level      : 7
 Range            : 60 yards
 GCD              : 1 seconds
 Duration         : Aura (infinite)
-Cooldown         : 20 seconds
 Affecting spells : Hunter (137014 effect#3), Aspect of the Wild (193530 effect#3)
 Family Flags     : 1, 28
 Attributes       : ....x... ........ ........ ........   .....x.. ..x..... ........ ........ 
@@ -5548,22 +5550,23 @@ Attributes       : ....x... ........ ........ ........   .....x.. ..x..... .....
                  : Does not break stealth (37)
 Effects          :
 #1 (id=480367)   : Apply Aura (6) | Modify Damage Taken% from Caster (270)
-                   Base Value: 5 | Scaled Value: 5 | PvP Coefficient: 1.00000 | Misc Value: 0x7f | Target: Enemy (6)
+                   Base Value: 0 | Scaled Value: 0 | PvP Coefficient: 1.00000 | Misc Value: 0x7f | Target: Enemy (6)
                    Affected School(s): All
+Hotfixed         : Base Value (5 -> 0)
 #2 (id=743704)   : Apply Aura (6) | Stalked (68)
                    Base Value: 0 | Scaled Value: 0 | PvP Coefficient: 1.00000 | Target: Enemy (6)
 #3 (id=819194)   : Apply Aura (6) | Unknown(381)
-                   Base Value: 5 | Scaled Value: 5 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+                   Base Value: 0 | Scaled Value: 0 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+Hotfixed         : Base Value (5 -> 0)
 #4 (id=819195)   : Apply Aura (6) | Unknown(380)
-                   Base Value: 5 | Scaled Value: 5 | PvP Coefficient: 1.00000 | Target: Enemy (6)
-Description      : Apply Hunter's Mark to the target, increasing all damage you deal to the marked target by $s1%. The target can always be seen and tracked by the Hunter.
+                   Base Value: 0 | Scaled Value: 0 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+Hotfixed         : Base Value (5 -> 0)
+Description      : Apply Hunter's Mark to the target, causing the target to always be seen and tracked by the Hunter.
 
-Only one Hunter's Mark can be applied at a time.
+Only one Hunter's Mark can be applied at a time.
+Tooltip          : Can always be seen and tracked by the Hunter.$?a339264[
 
-The cooldown of Hunter's Mark is reset if the target dies.
-Tooltip          : Damage taken from $@auracaster increased by $s1%$?a339264[ and damage dealt to $@auracaster is reduced by $339264s1%][].
-
-Can always be seen and tracked by the Hunter.
+Damage dealt to $@auracaster is reduced by $339264s1%.][]
 
 Name             : Multi-Shot (id=257620) [Spell Family (9)] 
 Class            : Marksmanship Hunter
@@ -8151,9 +8154,11 @@ Attributes       : ......x. ........ ........ ........   ........ ........ .....
                  : Passive (6), Scales with item level (354)
 Effects          :
 #1 (id=716157)   : Apply Aura (6) | Unknown(277)
-                   Base Value: 0 | Scaled Value: 5.29283 (coefficient=0.055714) | PvP Coefficient: 0.20000 | Trigger Spell: 270653 | Target: Self (1)
+                   Base Value: 0 | Scaled Value: 35.8719 (coefficient=0.377599) | PvP Coefficient: 0.20000 | Trigger Spell: 270653 | Target: Self (1)
+Hotfixed         : Coefficient (0.055714 -> 0.377599)
 #2 (id=716158)   : Apply Aura (6) | Dummy (4)
-                   Base Value: 0 | Scaled Value: 1.58783 (coefficient=0.016714) | PvP Coefficient: 0.20000 | Target: Self (1)
+                   Base Value: 0 | Scaled Value: 10.7616 (coefficient=0.11328) | PvP Coefficient: 0.20000 | Target: Self (1)
+Hotfixed         : Coefficient (0.016714 -> 0.11328)
 Description      : Increases your movement speed by $s1% of your highest secondary rating, up to $s2%.
 Tooltip          : Increases your movement speed by $s1% of your highest secondary rating, up to $s2%.
 
@@ -8250,6 +8255,7 @@ Description      : While no enemies are within $s2 yds, you heal for $s1 every $
 Tooltip          : While no enemies are within $s2 yds, you heal for $w1 every $270661t1 sec.
 
 Name             : Master Marksman (id=269576) [Spell Family (9)] 
+Hotfixed         : Attributes
 Class            : Hunter
 School           : Physical
 Spell Type       : Ranged
@@ -8262,7 +8268,7 @@ Attributes       : ........ ........ ........ ..x.....   ........ ........ .....
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
                  : ........ ........ ........ .....x..   ........ ........ ........ ........ 
                  : ........ ....x... ........ ........   ........ ........ ........ ........ 
-                 : ........ ......x. ........ ........   ........ ........ ........ ........ 
+                 : .x...... ......x. ........ ........   ........ ........ ........ ........ 
                  : ........ ........ ........ ........   x....... ........ ........ ........ 
                  : ........ ........ ........ ........   
                  : Cannot crit (93), Disable player multipliers (221)
@@ -11052,6 +11058,8 @@ Effects          :
 Description      : Your secondary stats are all increased by $s1.
 
 Name             : Kill Shot (id=320976) [Spell Family (9)] 
+Hotfixed         : Attributes
+Replaces         : Kill Shot (id=53351)
 Class            : Survival Hunter
 School           : Physical
 Spell Type       : Ranged
@@ -11072,7 +11080,7 @@ Attributes       : ....x... ........ x....... ........   ........ .x...... .....
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
                  : ........ ........ ........ ........   x....... ........ ........ ........ 
-                 : ........ ........ ........ ........   
+                 : x....... ........ ........ ........   
                  : Requires main-hand weapon (106)
 Effects          :
 #1 (id=808381)   : School Damage (2): physical
@@ -12703,6 +12711,7 @@ Effects          :
 Description      : Barbed Shot's recharge time is reduced by ${$s2/1000} sec and the damage is increased by|cFFFFFFFF ${$s1}.1%|r.
 
 Name             : Chimaera Shot (id=342049) [Spell Family (9)] 
+Hotfixed         : Description
 Replaces         : Arcane Shot (id=185358)
 Class            : Hunter
 School           : Nature
@@ -12725,8 +12734,9 @@ Attributes       : .x..x... ........ x....... ........   ........ .x...... .....
                  : Ranged Ability (1)
 Effects          :
 #1 (id=842821)   : Dummy (3)
-                   Base Value: 0 | Scaled Value: 0 | PvP Coefficient: 1.00000 | Chain Multiplier: 1 | Chain Targets: 2 | Target: Enemy (6)
-Description      : A two-headed shot that hits your primary target and another nearby target, dealing $344120sw1 Nature damage to one and $344121sw1 Frost damage to the other.
+                   Base Value: 50 | Scaled Value: 50 | PvP Coefficient: 1.00000 | Chain Multiplier: 1 | Chain Targets: 2 | Target: Enemy (6)
+Hotfixed         : Base Value (0 -> 50)
+Description      : A two-headed shot that hits your primary target for $344120sw1 Nature damage and another nearby target for  ${$344121sw1*($s1/100)} Frost damage.
 
 Name             : Streamline (id=342076) [Spell Family (9)] 
 Class            : Hunter
@@ -12895,7 +12905,8 @@ Attributes       : .x...... ........ x....... ........   ........ .x...... .....
                  : Ranged Ability (1)
 Effects          :
 #1 (id=868192)   : School Damage (2): nature
-                   Base Value: 0 | Scaled Value: 0 (coefficient=0, delta coefficient=0.05) | AP Coefficient: 0.79092 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+                   Base Value: 0 | Scaled Value: 0 (coefficient=0, delta coefficient=0.05) | AP Coefficient: 0.65000 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+Hotfixed         : AP Coefficient (0.79092 -> 0.65)
 Description      : $@spelldesc342049
 
 Name             : Chimaera Shot (id=344121) [Spell Family (9)] 
@@ -12919,7 +12930,8 @@ Attributes       : .x...... ........ x....... ........   ........ .x...... .....
                  : Ranged Ability (1)
 Effects          :
 #1 (id=868193)   : School Damage (2): frost
-                   Base Value: 0 | Scaled Value: 0 (coefficient=0, delta coefficient=0.05) | AP Coefficient: 0.79092 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+                   Base Value: 0 | Scaled Value: 0 (coefficient=0, delta coefficient=0.05) | AP Coefficient: 0.65000 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+Hotfixed         : AP Coefficient (0.79092 -> 0.65)
 Description      : $@spelldesc342049
 
 Name             : Spore Cloud (desc=Special Ability) (id=344347) [Spell Family (9)] 

@@ -1,4 +1,4 @@
-SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (git build shadowlands 2d455ee3aa)
+SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (hotfix 2020-11-10/36577, git build shadowlands 2d455ee3aa)
 
 Name             : Dual Wield (desc=Passive) (id=674) [Passive] 
 Class            : Frost Warrior, Hunter, Rogue, Death Knight, Monk, Demon Hunter
@@ -440,7 +440,6 @@ Name             : Disrupt (id=183752) [Spell Family (107)]
 Class            : Demon Hunter
 School           : Chromatic
 Spell Type       : Magic
-Spell Level      : 29
 Range            : 5 yards
 Duration         : 3 seconds
 Cooldown         : 15 seconds
@@ -490,7 +489,6 @@ Name             : Throw Glaive (id=185123) [Spell Family (107)]
 Class            : Demon Hunter
 School           : Physical
 Spell Type       : Melee
-Spell Level      : 19
 Range            : 30 yards
 GCD              : 1.5 seconds
 Charges          : 1 (9 seconds cooldown)
@@ -584,11 +582,11 @@ Effects          :
                    Base Value: 0 | Scaled Value: 0 | PvP Coefficient: 1.00000 | Misc Value: 17 | Target: Self (1)
 
 Name             : Metamorphosis (id=187827) [Spell Family (107)] 
+Hotfixed         : Required Level (20 -> 0)
 Replaces         : Metamorphosis (id=191427)
 Class            : Vengeance Demon Hunter
 School           : Chaos
 Spell Type       : None
-Spell Level      : 20
 Duration         : 15 seconds
 Cooldown         : 300 seconds
 Category         : 1251
@@ -778,7 +776,6 @@ Name             : Metamorphosis (id=191427) [Spell Family (107)]
 Class            : Demon Hunter
 School           : Physical
 Spell Type       : Melee
-Spell Level      : 20
 Range            : 40 yards
 GCD              : 1.5 seconds
 Cooldown         : 300 seconds
@@ -1451,10 +1448,11 @@ Description      : Place a Sigil of Silence at the target location that activate
 Silences all enemies affected by the sigil for $204490d.
 
 Name             : Sigil of Chains (id=202138) [Spell Family (107)] 
+Hotfixed         : Learn Level (50 -> 0), Required Level (50 -> 40)
 Class            : Demon Hunter
 School           : Physical
 Spell Type       : None
-Spell Level      : 50
+Spell Level      : 40
 Range            : 30 yards
 GCD              : 1.5 seconds
 Duration         : 2 seconds
@@ -4374,8 +4372,9 @@ Description      : Deals $s1 Holy Damage to enemies within $A1.
 Heals $s2 to allies within $A1. 
 
 Name             : Essence Break (id=258860) [Spell Family (107)] 
+Hotfixed         : School (125 -> 124)
 Class            : Demon Hunter
-School           : None
+School           : Chromatic
 Spell Type       : Melee
 Range            : 10 yards
 GCD              : 1.5 seconds
@@ -4393,7 +4392,7 @@ Attributes       : ....x... ........ ........ ........   ........ .x...... .....
                  : ........ ........ ........ ........   
                  : Requires main-hand weapon (106)
 Effects          :
-#1 (id=483076)   : School Damage (2): none
+#1 (id=483076)   : School Damage (2): chromatic
                    Base Value: 0 | Scaled Value: 0 (coefficient=0, delta coefficient=0.05) | AP Coefficient: 0.59073 | PvP Coefficient: 1.00000 | Radius: 10 yards | Target: Cone Front (104)
 Description      : Slash all enemies in front of you for $s1 Chaos damage, and increase the damage your Chaos Strike and Blade Dance deal to them by $320338s1% for $320338d.
 
@@ -4490,7 +4489,6 @@ Name             : Immolation Aura (id=258920) [Spell Family (107)]
 Class            : Demon Hunter
 School           : Fire
 Spell Type       : None
-Spell Level      : 14
 GCD              : 1.5 seconds
 Duration         : 6 seconds
 Cooldown         : 30 seconds
@@ -5232,9 +5230,11 @@ Attributes       : ......x. ........ ........ ........   ........ ........ .....
                  : Passive (6), Scales with item level (354)
 Effects          :
 #1 (id=716157)   : Apply Aura (6) | Unknown(277)
-                   Base Value: 0 | Scaled Value: 5.29283 (coefficient=0.055714) | PvP Coefficient: 0.20000 | Trigger Spell: 270653 | Target: Self (1)
+                   Base Value: 0 | Scaled Value: 35.8719 (coefficient=0.377599) | PvP Coefficient: 0.20000 | Trigger Spell: 270653 | Target: Self (1)
+Hotfixed         : Coefficient (0.055714 -> 0.377599)
 #2 (id=716158)   : Apply Aura (6) | Dummy (4)
-                   Base Value: 0 | Scaled Value: 1.58783 (coefficient=0.016714) | PvP Coefficient: 0.20000 | Target: Self (1)
+                   Base Value: 0 | Scaled Value: 10.7616 (coefficient=0.11328) | PvP Coefficient: 0.20000 | Target: Self (1)
+Hotfixed         : Coefficient (0.016714 -> 0.11328)
 Description      : Increases your movement speed by $s1% of your highest secondary rating, up to $s2%.
 Tooltip          : Increases your movement speed by $s1% of your highest secondary rating, up to $s2%.
 
@@ -9285,6 +9285,7 @@ Effects          :
                    Base Value: 1 | Scaled Value: 1 | PvP Coefficient: 1.00000 | Misc Value: 1369 | Target: Self (1)
 
 Name             : Glaive Tempest (id=342817) [Spell Family (107)] 
+Hotfixed         : Attributes
 Class            : Demon Hunter
 School           : Magic
 Spell Type       : Magic
@@ -9292,20 +9293,21 @@ Resource         : 30 Fury (17) (id=215319)
 GCD              : 1.5 seconds
 Travel Time      : 3 seconds
 Duration         : 3 seconds
+Requires weapon  : One-handed Axe, One-handed Mace, One-handed Sword, War Glaive, Fist Weapon
 Cooldown         : 20 seconds
 Category         : 1908
 Category Cooldown: 20 seconds
 Affecting spells : Demon Soul (163073 effects: #1, #2), Momentum (208628 effects: #1, #2), Havoc Demon Hunter (212612 effects: #1, #2, #3, #4), Vengeance Demon Hunter (212613 effects: #3, #4), Chaos Blades (247938 effects: #2, #3)
 Family Flags     : 16, 32, 85, 88
-Attributes       : ........ ........ ........ ........   ........ .x...... ........ ........ 
-                 : ........ ........ ........ ........   ........ ........ ........ ......x. 
+Attributes       : ....x... ........ ........ ........   ........ .x...... ........ ........ 
+                 : ........ ........ ........ ........   ........ ..x..... ........ x.....x. 
                  : ........ ........ ........ ........   ........ .x...... ........ ........ 
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
                  : ........ ....x... .x...... ........   ....x... ........ ........ ........ 
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
                  : ........ ........ ........ ........   x....... ........ ........ ........ 
                  : ........ ........ ........ ........   
-                 : Tick on application (169), Duration affected by haste (273), Fixed travel time (292)
+                 : Requires main-hand weapon (106), Requires off-hand weapon (120), Tick on application (169), Duration affected by haste (273), Fixed travel time (292)
 Effects          :
 #1 (id=844163)   : Unknown(179)
                    Base Value: 0 | Scaled Value: 0 | PvP Coefficient: 1.00000 | Misc Value: 21832 | Target: Custom (18)

@@ -1,4 +1,4 @@
-SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (git build shadowlands 2d455ee3aa)
+SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (hotfix 2020-11-10/36577, git build shadowlands 2d455ee3aa)
 
 Name             : Haste (id=65) [Scaling Spell (-1)] 
 Class            : Paladin
@@ -88,7 +88,8 @@ Attributes       : ........ ........ ..x..... x..x....   ........ ........ .....
                  : ........ ........ ........ ........   
 Effects          :
 #1 (id=195)      : Apply Raid Aura (65) | Modify Damage Taken% (87)
-                   Base Value: -3 | Scaled Value: -3 | PvP Coefficient: 1.00000 | Misc Value: 0x1 | Radius: 40 yards | Target: Self (1)
+                   Base Value: -3 | Scaled Value: -3 | PvP Coefficient: 1.00000 | Misc Value: 0x7f | Radius: 40 yards | Target: Self (1)
+Hotfixed         : Misc Value (1 -> 127)
 #2 (id=803408)   : Apply Aura (6) | Unknown(285)
                    Base Value: -3 | Scaled Value: -3 | PvP Coefficient: 1.00000 | Trigger Spell: 344218 | Target: Self (1)
 Description      : Party and raid members within $a1 yards are bolstered by their devotion, reducing damage taken by $s1%.
@@ -211,11 +212,12 @@ Description      : Stuns the target for $d.
 Tooltip          : Stunned.
 
 Name             : Blessing of Protection (id=1022) [Spell Family (10)] 
+Hotfixed         : Learn Level (41 -> 32), Required Level (41 -> 32)
 Class            : Paladin
 School           : Holy
 Spell Type       : Magic
 Resource         : 15% Base Mana (0) (id=107)
-Spell Level      : 41
+Spell Level      : 32
 Range            : 40 yards
 GCD              : 1.5 seconds
 Duration         : 10 seconds
@@ -469,6 +471,7 @@ Description      : Judges the target, dealing $s1 Holy damage$?s231663[, and cau
 |cFFFFFFFFGenerates $220637s1 Holy Power.][]
 
 Name             : Holy Shock (id=20473) [Spell Family (10)] 
+Hotfixed         : Cooldown (9000 -> 7500), Category Cooldown (9000 -> 7500)
 Class            : Holy Paladin
 School           : Holy
 Spell Type       : Magic
@@ -476,9 +479,9 @@ Resource         : 14% Base Mana (0) (id=836)
 Spell Level      : 10
 Range            : 40 yards
 GCD              : 1.5 seconds
-Cooldown         : 9 seconds
+Cooldown         : 7.5 seconds
 Category         : 892
-Category Cooldown: 9 seconds
+Category Cooldown: 7.5 seconds
 Affecting spells : Avenging Wrath (31884 effect#6), Protection Paladin (137028 effect#6), Holy Paladin (137029 effect#4), Rule of Law (214202 effect#1), Judgment (214222 effect#1), Holy Shock (272906 effect#1), Focused Light (339984 effect#1)
 Family Flags     : 21
 Attributes       : ........ ........ x.x..... ........   ........ ........ ........ ........ 
@@ -1021,7 +1024,8 @@ Effects          :
                    Affected Spells: Avenging Wrath (31884), Avenging Crusader (216331)
                    Family Flags: 40, 102
 #2 (id=165370)   : Apply Aura (6) | Dummy (4)
-                   Base Value: -50 | Scaled Value: -50 | PvP Coefficient: 1.00000 | Misc Value: 33 | Target: Self (1)
+                   Base Value: -40 | Scaled Value: -40 | PvP Coefficient: 1.00000 | Misc Value: 33 | Target: Self (1)
+Hotfixed         : Base Value (-50 -> -40)
 Description      : Avenging Wrath lasts $s1% longer and also reduces Holy Shock's cooldown by $s2%.
 
 Name             : Divine Storm (id=53385) [Spell Family (10)] 
@@ -1718,7 +1722,7 @@ Resource         : 3 Holy Power (9) (id=4098)
 Spell Level      : 7
 Range            : 40 yards
 GCD              : 1.5 seconds
-Affecting spells : Avenging Wrath (31884 effects: #1, #2, #3), Sanctuary (105805 effect#5), Holy Paladin (137029 effects: #1, #2), Sacred Shield Overridde (Holy) (148040 effect#2), Beacon of Faith (156910 effect#3), Fires of Justice (209785 effect#1), Rule of Law (214202 effect#1), Divine Purpose (223819 effects: #1, #2), Shining Light (327510 effect#1), The Magistrate's Judgment (337682 effect#1), Blessing of Dawn (337747 effects: #1, #2), Shadowbreaker, Dawn of the Sun (337815 effect#1), Royal Decree (340147 effect#1)
+Affecting spells : Avenging Wrath (31884 effects: #1, #2, #3), Sanctuary (105805 effect#5), Retribution Paladin (137027 effect#15), Holy Paladin (137029 effects: #1, #2), Sacred Shield Overridde (Holy) (148040 effect#2), Beacon of Faith (156910 effect#3), Fires of Justice (209785 effect#1), Rule of Law (214202 effect#1), Divine Purpose (223819 effects: #1, #2), Righteous Conviction (287126 effect#1), Shining Light (327510 effect#1), The Magistrate's Judgment (337682 effect#1), Blessing of Dawn (337747 effects: #1, #2), Shadowbreaker, Dawn of the Sun (337815 effect#1), Royal Decree (340147 effect#1)
 Family Flags     : 46, 78
 Attributes       : ........ ........ ........ ........   ........ ........ ........ ........ 
                  : ........ ........ ........ ........   ........ ........ ........ ........ 
@@ -2605,6 +2609,11 @@ Effects          :
                    Base Value: 0 | Scaled Value: 0 | PvP Coefficient: 1.00000 | Misc Value: 12 | Target: Self (1)
                    Affected Spells: Crusader Strike (35395)
                    Family Flags: 47
+#15 (id=872903)   : Apply Aura (6) | Add Percent Modifier (108): Spell Direct Amount (0)
+                   Base Value: 30 | Scaled Value: 30 | PvP Coefficient: 1.00000 | Target: Self (1)
+                   Affected Spells: Word of Glory (85673)
+                   Family Flags: 78
+Hotfixed         : NEW EFFECT
 
 Name             : Protection Paladin (id=137028) [Spell Family (10), Passive, Hidden] 
 Class            : Protection Paladin, Death Knight
@@ -5828,9 +5837,11 @@ Attributes       : ......x. ........ ........ ........   ........ ........ .....
                  : Passive (6), Scales with item level (354)
 Effects          :
 #1 (id=716157)   : Apply Aura (6) | Unknown(277)
-                   Base Value: 0 | Scaled Value: 5.29283 (coefficient=0.055714) | PvP Coefficient: 0.20000 | Trigger Spell: 270653 | Target: Self (1)
+                   Base Value: 0 | Scaled Value: 35.8719 (coefficient=0.377599) | PvP Coefficient: 0.20000 | Trigger Spell: 270653 | Target: Self (1)
+Hotfixed         : Coefficient (0.055714 -> 0.377599)
 #2 (id=716158)   : Apply Aura (6) | Dummy (4)
-                   Base Value: 0 | Scaled Value: 1.58783 (coefficient=0.016714) | PvP Coefficient: 0.20000 | Target: Self (1)
+                   Base Value: 0 | Scaled Value: 10.7616 (coefficient=0.11328) | PvP Coefficient: 0.20000 | Target: Self (1)
+Hotfixed         : Coefficient (0.016714 -> 0.11328)
 Description      : Increases your movement speed by $s1% of your highest secondary rating, up to $s2%.
 Tooltip          : Increases your movement speed by $s1% of your highest secondary rating, up to $s2%.
 
@@ -7698,6 +7709,7 @@ Effects          :
 Description      : Your attacks have a chance to make your next Divine Storm free and deal $s1 additional damage.
 
 Name             : Righteous Conviction (id=287126) [Scaling Spell (-8), Spell Family (10), Passive] 
+Hotfixed         : Description
 Class            : Paladin
 School           : Physical
 Spell Type       : None
@@ -7714,8 +7726,10 @@ Attributes       : ......x. ........ ........ ........   ........ ........ .....
 Effects          :
 #1 (id=749914)   : Apply Aura (6) | Add Flat Modifier (107): Spell Direct Amount (0)
                    Base Value: 0 | Scaled Value: 445.3021 (coefficient=18.42331) | PvP Coefficient: 0.50000 | Target: Self (1)
-                   Family Flags: 125
-Description      : Your $?s213652[Hand of the Protector][Light of the Protector] heals for $s1 additional healing, and is always increased by 200% during Avenging Wrath.
+                   Affected Spells: Word of Glory (85673)
+                   Family Flags: 78
+Hotfixed         : Affects Spells
+Description      : Word of Glory heals for $s1 additional healing. During Avenging Wrath, it receives the maximum value of any health-based bonuses.
 
 Name             : Glimmer of Light (id=287268) [Scaling Spell (-8), Spell Family (10), Passive] 
 Class            : Paladin

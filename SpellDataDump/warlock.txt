@@ -1,4 +1,4 @@
-SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (git build shadowlands 2d455ee3aa)
+SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (hotfix 2020-11-10/36577, git build shadowlands 2d455ee3aa)
 
 Name             : Eye of Kilrogg (id=126) [Spell Family (5)] 
 Class            : Warlock
@@ -2430,10 +2430,11 @@ Effects          :
 Description      : Escapes to the Master. Flee removes all stun and roots.
 
 Name             : Control Demon (id=93375) [Hidden] 
+Hotfixed         : Learn Level (10 -> 1), Required Level (10 -> 1)
 Class            : Warlock
 School           : Physical
 Spell Type       : None
-Spell Level      : 10
+Spell Level      : 1
 Duration         : Aura (infinite)
 Proc Chance      : 101%
 Attributes       : .......x ........ ........ ........   ........ ........ ........ ........ 
@@ -6364,9 +6365,10 @@ Attributes       : ........ ........ x....... ........   ........ ........ .....
                  : ........ ........ ........ ........   
 Effects          :
 #1 (id=710538)   : Apply Aura (6) | Modify Damage Taken% from Caster's Spells (271)
-                   Base Value: 30 | Scaled Value: 30 | PvP Coefficient: 1.00000 | Chain Multiplier: 1 | Chain Targets: 1 | Target: Enemy (6)
+                   Base Value: 25 | Scaled Value: 25 | PvP Coefficient: 1.00000 | Chain Multiplier: 1 | Chain Targets: 1 | Target: Enemy (6)
                    Affected Spells: Immolate (348), Soul Fire (6353), Conflagrate (17962), Incinerate (29722), Immolate (157736), Channel Demonfire (196448), Incinerate (244670)
                    Family Flags: 2, 4, 15, 38, 55, 65
+Hotfixed         : Base Value (30 -> 25)
 Description      : $@spelldesc205184
 Tooltip          : Fire damage taken increased by $s1%.
 Variables        : $mastery=$?s77220[${((100+$77220m3)/100)}][${1.00}]
@@ -6406,7 +6408,8 @@ Attributes       : ......x. ........ ........ ........   ........ ........ .....
                  : Passive (6)
 Effects          :
 #1 (id=710845)   : Apply Aura (6) | Dummy (4)
-                   Base Value: 20 | Scaled Value: 20 | PvP Coefficient: 1.00000 | Target: Self (1)
+                   Base Value: 15 | Scaled Value: 15 | PvP Coefficient: 1.00000 | Target: Self (1)
+Hotfixed         : Base Value (20 -> 15)
 Description      : While your initial Infernal is active, every Soul Shard you spend has a $s1% chance to summon an additional Infernal that lasts $335236d.
 
 Name             : Rain of Chaos (id=266087) [Spell Family (5)] 
@@ -7374,9 +7377,11 @@ Attributes       : ......x. ........ ........ ........   ........ ........ .....
                  : Passive (6), Scales with item level (354)
 Effects          :
 #1 (id=716157)   : Apply Aura (6) | Unknown(277)
-                   Base Value: 0 | Scaled Value: 5.29283 (coefficient=0.055714) | PvP Coefficient: 0.20000 | Trigger Spell: 270653 | Target: Self (1)
+                   Base Value: 0 | Scaled Value: 35.8719 (coefficient=0.377599) | PvP Coefficient: 0.20000 | Trigger Spell: 270653 | Target: Self (1)
+Hotfixed         : Coefficient (0.055714 -> 0.377599)
 #2 (id=716158)   : Apply Aura (6) | Dummy (4)
-                   Base Value: 0 | Scaled Value: 1.58783 (coefficient=0.016714) | PvP Coefficient: 0.20000 | Target: Self (1)
+                   Base Value: 0 | Scaled Value: 10.7616 (coefficient=0.11328) | PvP Coefficient: 0.20000 | Target: Self (1)
+Hotfixed         : Coefficient (0.016714 -> 0.11328)
 Description      : Increases your movement speed by $s1% of your highest secondary rating, up to $s2%.
 Tooltip          : Increases your movement speed by $s1% of your highest secondary rating, up to $s2%.
 
@@ -9680,7 +9685,8 @@ Attributes       : ........ ........ x....... ........   ........ ........ .....
                  : Periodic effect affected by haste (173), Periodic effect can crit (265)
 Effects          :
 #1 (id=800325)   : Dummy (3)
-                   Base Value: 2000 | Scaled Value: 2000 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+                   Base Value: 1300 | Scaled Value: 1300 | PvP Coefficient: 1.00000 | Target: Enemy (6)
+Hotfixed         : Base Value (2000 -> 1300)
 #2 (id=800326)   : Apply Aura (6) | Periodic Damage (3): shadow every 2 seconds
                    Base Value: 0 | Scaled Value: 0 | SP Coefficient: 0.23000 | PvP Coefficient: 1.00000 | Target: Enemy (6)
 #3 (id=800327)   : Dummy (3)
@@ -10398,7 +10404,7 @@ Class            : Warlock
 School           : Shadow
 Spell Type       : None
 Range            : 50000 yards
-Duration         : 10 seconds
+Duration         : 8 seconds
 Attributes       : ........ ........ x....... ........   ........ ........ .x...... ....x... 
                  : ..x..... ........ ...x.... ........   ........ ........ ........ ......x. 
                  : ........ ........ ........ ........   ........ ........ ........ ........ 

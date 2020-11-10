@@ -1,4 +1,4 @@
-SimulationCraft 902-01 for World of Warcraft 9.0.1.36372 shadowlands-BETA (git build shadowlands 2d455ee3aa)
+SimulationCraft 902-01 for World of Warcraft 9.0.1.36577 shadowlands-BETA (git build shadowlands 2d455ee3aa)
 
 Name             : Incapacitating Roar (id=99) [Spell Family (7)] 
 Class            : Guardian Druid

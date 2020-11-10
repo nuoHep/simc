@@ -4809,8 +4809,17 @@ struct flare_t : hunter_spell_t
       : hunter_spell_t( n, p, p -> find_spell( 336746 ) )
     {
       aoe = as<int>( p -> legendary.soulforge_embers -> effectN( 1 ).base_value() );
-      radius = p -> find_class_spell( "Tar Trap" ) -> effectN( 1 ).trigger() -> effectN( 1 ).base_value();
       triggers_wild_spirits = false;
+    }
+
+    size_t available_targets( std::vector< player_t* >& tl ) const override
+    {
+      hunter_spell_t::available_targets( tl );
+
+      // Applies only to targets that have the Tar Trap debuff, doesn't work on CC-immune targets like bosses
+      tl.erase( std::remove_if( tl.begin(), tl.end(), []( player_t* t ) { return t -> is_boss(); } ), tl.end() );
+
+      return tl.size();
     }
   };
 

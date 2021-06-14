@@ -35,7 +35,7 @@ struct sdata_field_t
 
     constexpr explicit field_data_t( const char* s ) : str( s ) {}
 
-    template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+    template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
     constexpr explicit field_data_t( T v ) : num( static_cast<double>( v ) ) {}
   };
 
@@ -52,114 +52,104 @@ struct sdata_field_t
 
 namespace detail {
 
-template <typename T>
-struct mem_fn_traits_impl;
-
-template <typename T, typename U>
-struct mem_fn_traits_impl<T U::*> {
-  using base_type = T;
-  using object_type = U;
-};
-
-template <typename T>
-using mem_fn_traits_t = mem_fn_traits_impl<std::remove_cv_t<T>>;
-
-template <typename T, typename U, T U::*Pm>
+// XXX: Move to some general "utillity" place?
+template <auto Pm>
 struct mem_fn_t {
-  using object_type = U;
+  using pointer_type = decltype(Pm);
+  static_assert( std::is_member_pointer_v<pointer_type> );
 
   template <typename... Args>
-  decltype(auto) operator()( Args&&... args ) const {
-    return range::invoke( Pm, std::forward<Args>(args)... );
+  std::invoke_result_t<pointer_type, Args...> operator()( Args&&... args ) const
+    noexcept( std::is_nothrow_invocable_v<pointer_type, Args...> )
+  {
+    return std::invoke( Pm, std::forward<Args>( args )... );
   }
 };
 
 template <typename T>
-constexpr sdata_field_type_t field_type_impl() {
-  if ( std::is_arithmetic<T>::value )
-    return SD_TYPE_NUM;
-  if ( std::is_same<T, const char*>::value )
-    return SD_TYPE_STR;
-  return static_cast<sdata_field_type_t>( -1 );
-}
-
+struct mem_fn_object_type;
+template <typename T, typename U>
+struct mem_fn_object_type<T U::*> { using type = U; };
 template <typename T>
-constexpr sdata_field_type_t field_type() {
-  constexpr auto type = field_type_impl<std::decay_t<T>>();
-  assert( static_cast<int>( type ) != -1 );
-  return type;
+using mem_fn_object_type_t = typename mem_fn_object_type<T>::type;
+
+template <typename DataType, typename Fn>
+sdata_field_t::field_data_t get_data_field( const dbc_t& dbc, const void* data ) {
+  return sdata_field_t::field_data_t( Fn{}( dbc, *static_cast<const DataType*>( data ) ) );
 }
 
 template <typename DataType, typename Fn>
-sdata_field_t::field_data_t get_data_field( const dbc_t&, const void* data ) {
-  return sdata_field_t::field_data_t( Fn{}( *static_cast<const DataType*>( data ) ) );
+constexpr sdata_field_t::field_data_getter_t make_getter() {
+  using result_type = std::decay_t<std::invoke_result_t<Fn, const dbc_t&, const DataType&>>;
+
+  sdata_field_type_t field_type = sdata_field_type_t{ -1 };
+  if constexpr ( std::is_arithmetic_v<result_type> )
+    field_type = SD_TYPE_NUM;
+  else if constexpr ( std::is_same_v<result_type, const char*> )
+    field_type = SD_TYPE_STR;
+  assert( field_type != sdata_field_type_t{ -1 } );
+
+  return { field_type, detail::get_data_field<DataType, Fn> };
 }
 
-template <typename Field>
-constexpr sdata_field_t::field_data_getter_t data_field( Field ) {
-  using data_type = typename Field::object_type;
-  using result_type = decltype( Field{}( std::declval<const data_type&>() ) );
-  return { field_type<result_type>(), get_data_field<data_type, Field> };
-}
+template <typename Fn>
+struct data_field_fn_t {
+  template <typename... Args>
+  decltype(auto) operator()( const dbc_t&, Args&&... args ) const {
+    return Fn{}( std::forward<Args>( args )... );
+  }
+};
 
 } // namespace detail
 
 template <typename Impl, typename DataType>
 struct func_field_t {
-  static sdata_field_t::field_data_t get( const dbc_t& dbc, const void* data ) {
-    return sdata_field_t::field_data_t( Impl{}( dbc, *static_cast<const DataType*>( data ) ) );
-  }
-
   constexpr operator sdata_field_t::field_data_getter_t() const {
-    using result_type = decltype( Impl{}( std::declval<const dbc_t&>(), std::declval<const DataType&>() ) );
-    return { detail::field_type<result_type>(), get };
+    return detail::make_getter<DataType, Impl>();
   }
 };
 
-// this and most of the supporting detail machinery could be greatly simplified with C++17 auto nttps
-#define MEM_FN_T(...) \
-  detail::mem_fn_t<detail::mem_fn_traits_t<decltype(__VA_ARGS__)>::base_type, \
-                   detail::mem_fn_traits_t<decltype(__VA_ARGS__)>::object_type, \
-                   __VA_ARGS__>
-
-#define FIELD(...) detail::data_field( MEM_FN_T(__VA_ARGS__){} )
+template <auto Pm>
+constexpr sdata_field_t::field_data_getter_t field =
+  detail::make_getter<detail::mem_fn_object_type_t<decltype(Pm)>,
+                      detail::data_field_fn_t<detail::mem_fn_t<Pm>>>();
 
 static constexpr std::array<sdata_field_t, 5> _talent_data_fields { {
-  { "name",  FIELD( &talent_data_t::_name ) },
-  { "id",    FIELD( &talent_data_t::_id ) },
-  { "flags", FIELD( &talent_data_t::_flags ) },
-  { "col",   FIELD( &talent_data_t::_col ) },
-  { "row",   FIELD( &talent_data_t::_row ) },
+  { "name",  field< &talent_data_t::_name > },
+  { "id",    field< &talent_data_t::_id > },
+  { "flags", field< &talent_data_t::_flags > },
+  { "col",   field< &talent_data_t::_col > },
+  { "row",   field< &talent_data_t::_row > },
 } };
 
 static constexpr std::array<sdata_field_t, 27> _effect_data_fields { {
-  { "id",              FIELD( &spelleffect_data_t::_id ) },
-  { "spell_id",        FIELD( &spelleffect_data_t::_spell_id ) },
-  { "index",           FIELD( &spelleffect_data_t::_index ) },
-  { "type",            FIELD( &spelleffect_data_t::_type ) },
-  { "sub_type" ,       FIELD( &spelleffect_data_t::_subtype ) },
-  { "scaling",         FIELD( &spelleffect_data_t::_scaling_type ) },
-  { "m_coefficient",   FIELD( &spelleffect_data_t::_m_coeff ) },
-  { "m_delta",         FIELD( &spelleffect_data_t::_m_delta ) },
-  { "m_bonus" ,        FIELD( &spelleffect_data_t::_m_unk ) },
-  { "coefficient",     FIELD( &spelleffect_data_t::_sp_coeff ) },
-  { "ap_coefficient",  FIELD( &spelleffect_data_t::_ap_coeff ) },
-  { "amplitude",       FIELD( &spelleffect_data_t::_amplitude ) },
-  { "radius",          FIELD( &spelleffect_data_t::_radius ) },
-  { "max_radius",      FIELD( &spelleffect_data_t::_radius_max ) },
-  { "base_value",      FIELD( &spelleffect_data_t::_base_value ) },
-  { "misc_value",      FIELD( &spelleffect_data_t::_misc_value ) },
-  { "misc_value2",     FIELD( &spelleffect_data_t::_misc_value_2 ) },
-  { "trigger_spell",   FIELD( &spelleffect_data_t::_trigger_spell_id ) },
-  { "m_chain",         FIELD( &spelleffect_data_t::_m_chain ) },
-  { "p_combo_points",  FIELD( &spelleffect_data_t::_pp_combo_points ) },
-  { "p_level",         FIELD( &spelleffect_data_t::_real_ppl ) },
-  { "mechanic",        FIELD( &spelleffect_data_t::_mechanic ) },
-  { "chain_target",    FIELD( &spelleffect_data_t::_chain_target ) },
-  { "target_1",        FIELD( &spelleffect_data_t::_targeting_1 ) },
-  { "target_2",        FIELD( &spelleffect_data_t::_targeting_2 ) },
-  { "m_value",         FIELD( &spelleffect_data_t::_m_value ) },
-  { "pvp_coefficient", FIELD( &spelleffect_data_t::_pvp_coeff ) },
+  { "id",              field< &spelleffect_data_t::_id > },
+  { "spell_id",        field< &spelleffect_data_t::_spell_id > },
+  { "index",           field< &spelleffect_data_t::_index > },
+  { "type",            field< &spelleffect_data_t::_type > },
+  { "sub_type" ,       field< &spelleffect_data_t::_subtype > },
+  { "scaling",         field< &spelleffect_data_t::_scaling_type > },
+  { "m_coefficient",   field< &spelleffect_data_t::_m_coeff > },
+  { "m_delta",         field< &spelleffect_data_t::_m_delta > },
+  { "m_bonus" ,        field< &spelleffect_data_t::_m_unk > },
+  { "coefficient",     field< &spelleffect_data_t::_sp_coeff > },
+  { "ap_coefficient",  field< &spelleffect_data_t::_ap_coeff > },
+  { "amplitude",       field< &spelleffect_data_t::_amplitude > },
+  { "radius",          field< &spelleffect_data_t::_radius > },
+  { "max_radius",      field< &spelleffect_data_t::_radius_max > },
+  { "base_value",      field< &spelleffect_data_t::_base_value > },
+  { "misc_value",      field< &spelleffect_data_t::_misc_value > },
+  { "misc_value2",     field< &spelleffect_data_t::_misc_value_2 > },
+  { "trigger_spell",   field< &spelleffect_data_t::_trigger_spell_id > },
+  { "m_chain",         field< &spelleffect_data_t::_m_chain > },
+  { "p_combo_points",  field< &spelleffect_data_t::_pp_combo_points > },
+  { "p_level",         field< &spelleffect_data_t::_real_ppl > },
+  { "mechanic",        field< &spelleffect_data_t::_mechanic > },
+  { "chain_target",    field< &spelleffect_data_t::_chain_target > },
+  { "target_1",        field< &spelleffect_data_t::_targeting_1 > },
+  { "target_2",        field< &spelleffect_data_t::_targeting_2 > },
+  { "m_value",         field< &spelleffect_data_t::_m_value > },
+  { "pvp_coefficient", field< &spelleffect_data_t::_pvp_coeff > },
 } };
 
 struct spell_replace_spell_id_t : func_field_t<spell_replace_spell_id_t, spell_data_t> {
@@ -168,10 +158,10 @@ struct spell_replace_spell_id_t : func_field_t<spell_replace_spell_id_t, spell_d
   }
 };
 
-template <typename Fn>
-struct spell_text_field_t : func_field_t<spell_text_field_t<Fn>, spell_data_t> {
+template <auto Pm>
+struct spell_text_field_t : func_field_t<spell_text_field_t<Pm>, spell_data_t> {
   const char* operator()( const dbc_t& dbc, const spell_data_t& data ) const {
-    return Fn{}( dbc.spell_text( data.id() ) );
+    return detail::mem_fn_t<Pm>{}( dbc.spell_text( data.id() ) );
   }
 };
 
@@ -212,51 +202,48 @@ struct spell_conduit_id_t : func_field_t<spell_conduit_id_t, spell_data_t> {
 };
 
 static constexpr std::array<sdata_field_t, 41> _spell_data_fields { {
-  { "name",              FIELD( &spell_data_t::_name ) },
-  { "id",                FIELD( &spell_data_t::_id ) },
-  { "speed",             FIELD( &spell_data_t::_prj_speed ) },
-  { "delay",             FIELD( &spell_data_t::_prj_delay ) },
-  { "min_duration",      FIELD( &spell_data_t::_prj_min_duration ) },
-  { "max_scaling_level", FIELD( &spell_data_t::_max_scaling_level ) },
-  { "level",             FIELD( &spell_data_t::_spell_level ) },
-  { "max_level",         FIELD( &spell_data_t::_max_level ) },
-  { "min_range",         FIELD( &spell_data_t::_min_range ) },
-  { "max_range",         FIELD( &spell_data_t::_max_range ) },
-  { "cooldown",          FIELD( &spell_data_t::_cooldown ) },
-  { "gcd",               FIELD( &spell_data_t::_gcd ) },
-  { "category_cooldown", FIELD( &spell_data_t::_category_cooldown ) },
-  { "charges",           FIELD( &spell_data_t::_charges ) },
-  { "charge_cooldown",   FIELD( &spell_data_t::_charge_cooldown ) },
-  { "category",          FIELD( &spell_data_t::_category ) },
-  { "duration",          FIELD( &spell_data_t::_duration ) },
-  { "max_stack",         FIELD( &spell_data_t::_max_stack ) },
-  { "proc_chance",       FIELD( &spell_data_t::_proc_chance ) },
-  { "initial_stack",     FIELD( &spell_data_t::_proc_charges ) },
-  { "icd",               FIELD( &spell_data_t::_internal_cooldown ) },
-  { "rppm",              FIELD( &spell_data_t::_rppm ) },
-  { "equip_class",       FIELD( &spell_data_t::_equipped_class ) },
-  { "equip_imask",       FIELD( &spell_data_t::_equipped_invtype_mask ) },
-  { "equip_scmask",      FIELD( &spell_data_t::_equipped_subclass_mask ) },
-  { "cast_time",         FIELD( &spell_data_t::_cast_time ) },
+  { "name",              field< &spell_data_t::_name > },
+  { "id",                field< &spell_data_t::_id > },
+  { "speed",             field< &spell_data_t::_prj_speed > },
+  { "delay",             field< &spell_data_t::_prj_delay > },
+  { "min_duration",      field< &spell_data_t::_prj_min_duration > },
+  { "max_scaling_level", field< &spell_data_t::_max_scaling_level > },
+  { "level",             field< &spell_data_t::_spell_level > },
+  { "max_level",         field< &spell_data_t::_max_level > },
+  { "min_range",         field< &spell_data_t::_min_range > },
+  { "max_range",         field< &spell_data_t::_max_range > },
+  { "cooldown",          field< &spell_data_t::_cooldown > },
+  { "gcd",               field< &spell_data_t::_gcd > },
+  { "category_cooldown", field< &spell_data_t::_category_cooldown > },
+  { "charges",           field< &spell_data_t::_charges > },
+  { "charge_cooldown",   field< &spell_data_t::_charge_cooldown > },
+  { "category",          field< &spell_data_t::_category > },
+  { "duration",          field< &spell_data_t::_duration > },
+  { "max_stack",         field< &spell_data_t::_max_stack > },
+  { "proc_chance",       field< &spell_data_t::_proc_chance > },
+  { "initial_stack",     field< &spell_data_t::_proc_charges > },
+  { "icd",               field< &spell_data_t::_internal_cooldown > },
+  { "rppm",              field< &spell_data_t::_rppm > },
+  { "equip_class",       field< &spell_data_t::_equipped_class > },
+  { "equip_imask",       field< &spell_data_t::_equipped_invtype_mask > },
+  { "equip_scmask",      field< &spell_data_t::_equipped_subclass_mask > },
+  { "cast_time",         field< &spell_data_t::_cast_time > },
   { "replace_spellid",   spell_replace_spell_id_t{} },
-  { "family",            FIELD( &spell_data_t::_class_flags_family ) },
-  { "stance_mask",       FIELD( &spell_data_t::_stance_mask ) },
-  { "mechanic",          FIELD( &spell_data_t::_mechanic ) },
-  { "power_id",          FIELD( &spell_data_t::_power_id ) }, // Azereite power id
-  { "essence_id",        FIELD( &spell_data_t::_essence_id ) }, // Azereite essence id
-  { "desc",              spell_text_field_t< MEM_FN_T( &spelltext_data_t::desc ) >{} },
-  { "tooltip",           spell_text_field_t< MEM_FN_T( &spelltext_data_t::tooltip ) >{} },
-  { "rank",              spell_text_field_t< MEM_FN_T( &spelltext_data_t::rank ) >{} },
+  { "family",            field< &spell_data_t::_class_flags_family > },
+  { "stance_mask",       field< &spell_data_t::_stance_mask > },
+  { "mechanic",          field< &spell_data_t::_mechanic > },
+  { "power_id",          field< &spell_data_t::_power_id > }, // Azereite power id
+  { "essence_id",        field< &spell_data_t::_essence_id > }, // Azereite essence id
+  { "desc",              spell_text_field_t< &spelltext_data_t::desc >{} },
+  { "tooltip",           spell_text_field_t< &spelltext_data_t::tooltip >{} },
+  { "rank",              spell_text_field_t< &spelltext_data_t::rank >{} },
   { "desc_vars",         spell_desc_vars_t{} },
-  { "req_max_level",     FIELD( &spell_data_t::_req_max_level ) },
-  { "dmg_class",         FIELD( &spell_data_t::_dmg_class ) },
-  { "max_targets",       FIELD( &spell_data_t::_max_targets ) },
+  { "req_max_level",     field< &spell_data_t::_req_max_level > },
+  { "dmg_class",         field< &spell_data_t::_dmg_class > },
+  { "max_targets",       field< &spell_data_t::_max_targets > },
   { "covenant",          spell_covenant_id_t{} },
   { "conduit_id",        spell_conduit_id_t{} },
 } };
-
-#undef FIELD
-#undef MEM_FN_T
 
 struct class_info_t {
   util::string_view name;

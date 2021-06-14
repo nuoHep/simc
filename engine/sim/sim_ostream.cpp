@@ -1,5 +1,7 @@
 #include "sim_ostream.hpp"
 
+#include "fmt/ostream.h"
+
 #include "sim/sc_sim.hpp"
 
 sc_raw_ostream_t& sc_raw_ostream_t::operator<< (const char* rhs)
@@ -10,7 +12,7 @@ sc_raw_ostream_t& sc_raw_ostream_t::operator<< (const char* rhs)
 
 void sc_raw_ostream_t::vprint( util::string_view format, fmt::format_args args )
 {
-  fmt::vprint( *_stream, to_string_view( format ), args );
+  fmt::vprint( *_stream, fmt::string_view( format ), args );
 }
 
 sim_ostream_t& sim_ostream_t::operator<< (const char* rhs)
@@ -29,7 +31,7 @@ void sim_ostream_t::print_simulation_time()
 void sim_ostream_t::vprintf( util::string_view format, fmt::printf_args args )
 {
   print_simulation_time();
-  fmt::vfprintf( *_raw.get_stream(), to_string_view( format ), args );
+  fmt::vfprintf( *_raw.get_stream(), format, args );
   *_raw.get_stream() << '\n';
 }
 
